@@ -1,4 +1,3 @@
 # SCD-Metro-POS
-SCD  Project 
-first commit 
+SCD  Project
 
