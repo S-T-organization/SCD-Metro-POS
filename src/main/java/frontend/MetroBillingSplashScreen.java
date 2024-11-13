@@ -6,8 +6,8 @@ import java.awt.*;
 public class MetroBillingSplashScreen extends JWindow {
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
-    private static final Color METRO_YELLOW = new Color(230, 190, 0);  // Darker yellow
-    private static final Color METRO_BLUE = new Color(0, 41, 84);  // Darker blue
+    private static final Color METRO_YELLOW = new Color(230, 190, 0);
+    private static final Color METRO_BLUE = new Color(0, 41, 84);
 
     private float progress = 0;
     private float slideIn = -1.0f;
@@ -28,13 +28,11 @@ public class MetroBillingSplashScreen extends JWindow {
                 g2d.setColor(METRO_YELLOW);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
 
-                // Blue header rectangle with slide-in animation
                 int headerHeight = 120;
                 int slideOffset = (int)(slideIn * getWidth());
                 g2d.setColor(METRO_BLUE);
                 g2d.fillRect(slideOffset, 50, getWidth() - 40, headerHeight);
 
-                // METRO text
                 if (slideIn > -0.1f) {
                     g2d.setColor(Color.WHITE);
                     g2d.setFont(new Font("Arial", Font.BOLD, 72));
