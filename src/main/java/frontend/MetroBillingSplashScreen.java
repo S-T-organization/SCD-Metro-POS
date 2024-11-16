@@ -68,7 +68,7 @@ public class MetroBillingSplashScreen extends JWindow {
         add(content, BorderLayout.CENTER);
 
         // Animation timer
-        Timer timer = new Timer(30, e -> {
+        Timer timer = new Timer(10, e -> {
             progress += 0.01f;
             slideIn += 0.05f;
 
@@ -80,6 +80,7 @@ public class MetroBillingSplashScreen extends JWindow {
                     try {
                         Thread.sleep(500);
                         dispose();
+                        new MainLoginPage().setVisible(true);
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     }
