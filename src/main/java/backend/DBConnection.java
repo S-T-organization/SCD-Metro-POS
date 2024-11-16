@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-    private Connection conn = null;
+    public static Connection conn = null;
 
     public DBConnection() {
         init();
@@ -28,17 +28,11 @@ public class DBConnection {
         } catch (SQLException e) {
             System.out.println("DB NOT CONNECTED");
             e.printStackTrace();
-        } finally {
-
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
-    }
 
+    }
+    public static   Connection getConnection() {
+        return conn;
+    }
 
 }
