@@ -1,9 +1,6 @@
 package backend;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 public class SuperAdmin {
     private static final String USERNAME = "admin";
@@ -116,6 +113,7 @@ public class SuperAdmin {
                 pstmt.setString(7, phoneNumber); // Include phoneNumber
 
                 int rowsInserted = pstmt.executeUpdate();
+                increaseEmployeeCount(branchCode);
                 if (rowsInserted > 0) {
                     System.out.println("Branch Manager created successfully with default password '123'.");
                     return true;
@@ -127,4 +125,30 @@ public class SuperAdmin {
         }
         return false;
     }
+
+    public boolean increaseEmployeeCount(String branchCode) {
+        String updateBranchQuery = """
+            UPDATE Branch
+            SET noOfEmployees = noOfEmployees + 1
+            WHERE branchCode = ?;
+            """;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(updateBranchQuery)) {
+
+            pstmt.setString(1, branchCode); // Set the branch code parameter
+
+            int rowsUpdated = pstmt.executeUpdate(); // Execute the update
+            if (rowsUpdated > 0) {
+                System.out.println("Employee count updated successfully for branch: " + branchCode);
+                return true;
+            } else {
+                System.out.println("No branch found with the provided branchCode: " + branchCode);
+            }
+        } catch (Exception e) {
+            System.out.println("Error updating employee count: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }
