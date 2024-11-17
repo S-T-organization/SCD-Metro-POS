@@ -10,7 +10,7 @@ public class SuperAdmin {
 
     public SuperAdmin() {
         System.out.println("Super Admin Initialized");
-        conn = DBConnection.getConnection(); // Fetch the initial connection
+        conn = DBConnection.getConnection();
     }
 
     public boolean login(String inputUsername, String inputPassword) {
@@ -156,6 +156,7 @@ public class SuperAdmin {
         }
         return false;
     }
+
     public String[] getAllBranchNames() {
         ArrayList<String> branchNames = new ArrayList<>();
 

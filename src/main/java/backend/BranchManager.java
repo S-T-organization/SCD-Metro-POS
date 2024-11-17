@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class BranchManager {
     public  Connection conn;
@@ -206,6 +207,84 @@ public class BranchManager {
         return false;
     }
 
+    public boolean login(String email, String password, String branchCode) {
+        try {
+            // Query to validate email, password, and branchCode
+            String query = "SELECT * FROM BranchManager WHERE email = ? AND password = ? AND branchCode = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                pstmt.setString(1, email);
+                pstmt.setString(2, password);
+                pstmt.setString(3, branchCode);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        // Populate the BranchManager object with details of the logged-in user
+                        this.empId = rs.getInt("empId");
+                        this.branchCode = rs.getString("branchCode");
+                        this.name = rs.getString("name");
+                        this.email = rs.getString("email");
+                        this.cnic = rs.getString("cnic");
+                        this.password = rs.getString("password");
+                        this.salary = rs.getString("salary");
+                        this.phoneNumber = rs.getString("phoneNumber");
+
+                        System.out.println("Login successful for: " + name + " at branch: " + branchCode);
+                        return true;
+                    } else {
+                        System.out.println("Invalid credentials or branch code.");
+                        return false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error during login: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public String[] getAllBranchNames() {
+        ArrayList<String> branchNames = new ArrayList<>();
+
+        String query = "SELECT name FROM Branch";
+
+        try (
+                PreparedStatement pstmt = conn.prepareStatement(query);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                branchNames.add(rs.getString("name"));
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error fetching branch names: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return branchNames.toArray(new String[0]); // Convert ArrayList to String array
+    }
+
+    public String getBranchCodeByName(String branchName) {
+        String branchCode = null;
+        String query = "SELECT branchCode FROM Branch WHERE name = ?";
+
+        try (
+                PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, branchName);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    branchCode = rs.getString("branchCode");
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error fetching branch code for name '" + branchName + "': " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return branchCode;
+    }
     @Override
     public String toString() {
         return "BranchManager{" +
@@ -218,4 +297,5 @@ public class BranchManager {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 '}';
     }
+
 }

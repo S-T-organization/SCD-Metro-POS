@@ -1,4 +1,5 @@
 package backend;
+import Controller.BranchManagerController;
 import Controller.SuperAdminController;
 
 public class BackendMain {
@@ -8,20 +9,20 @@ public class BackendMain {
             new DBConnection(); // Reinitialize connection
         }
 
-        SuperAdmin superAdmin = new SuperAdmin();
-        superAdmin.createBranch("3","Town","Lahore","Johar Town Lahore Pakistan","04212345678");
-//        System.out.println(superAdmin.login("admin", "admin"));
-        if (!DBConnection.isConnectionOpen()) {
-            System.out.println("Connection is closed");
-            Thread.sleep(1000);
-
-        }
-        else {
-            System.out.println("Connection is Opened");
-        }
-        System.out.println(superAdmin.addBranchManager("3","tALHA",
-                "cym73gmail.com","544037211","130000","03332306480"));
-
+//        SuperAdmin superAdmin = new SuperAdmin();
+//        superAdmin.createBranch("3","Town","Lahore","Johar Town Lahore Pakistan","04212345678");
+////        System.out.println(superAdmin.login("admin", "admin"));
+//        if (!DBConnection.isConnectionOpen()) {
+//            System.out.println("Connection is closed");
+//            Thread.sleep(1000);
+//
+//        }
+//        else {
+//            System.out.println("Connection is Opened");
+//        }
+//        System.out.println(superAdmin.addBranchManager("3","tALHA",
+//                "cym73gmail.com","544037211","130000","03332306480"));
+//
 
 //        BranchManager branchManager = new BranchManager();
         //branchManager.changePassword("cym786@gmail.com","123","myPassword");
@@ -30,5 +31,7 @@ public class BackendMain {
 //        SuperAdminController superAdminController = new SuperAdminController();
 //        System.out.println("Testing: Fetching all branch names from the database...");
 //        superAdminController.printAllBranchNames();
+//        BranchManagerController branchManagerController = new BranchManagerController();
+//        branchManagerController.login("cym786@gmail.com","123","1001");
     }
 }
