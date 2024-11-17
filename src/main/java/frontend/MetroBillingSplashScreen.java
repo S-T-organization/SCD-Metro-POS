@@ -2,6 +2,7 @@ package frontend;
 
 import javax.swing.*;
 import java.awt.*;
+import backend.DBConnection;
 
 public class MetroBillingSplashScreen extends JWindow {
     private static final int WIDTH = 600;
@@ -91,7 +92,12 @@ public class MetroBillingSplashScreen extends JWindow {
         timer.start();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
+        if (!DBConnection.isConnectionOpen()) {
+            System.out.println("Connection Open");
+            new DBConnection(); // Reinitialize connection
+        }
         SwingUtilities.invokeLater(() -> {
             MetroBillingSplashScreen splash = new MetroBillingSplashScreen();
             splash.setVisible(true);

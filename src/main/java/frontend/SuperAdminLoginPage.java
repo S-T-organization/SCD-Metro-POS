@@ -165,6 +165,8 @@ public class SuperAdminLoginPage extends JFrame
 
         if (loginSuccessful) {
             Notification.showMessage(this, "Login successful!");
+            dispose();
+            SwingUtilities.invokeLater(() -> new SuperAdminPage(this).setVisible(true));
         } else {
             Notification.showErrorMessage(this, "Invalid username or password.");
         }

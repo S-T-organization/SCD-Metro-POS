@@ -1,8 +1,6 @@
 package frontend;
 
 import Controller.SuperAdminController;
-import backend.DBConnection;
-import backend.SuperAdmin;
 
 import javax.swing.*;
 import java.awt.*;
@@ -277,12 +275,4 @@ public class SuperAdminPage extends JFrame {
         return textField;
     }
 
-    public static void main(String[] args) {
-
-        if (!DBConnection.isConnectionOpen()) {
-            System.out.println("Connection Open");
-            new DBConnection(); // Reinitialize connection
-        }
-        SwingUtilities.invokeLater(() -> new SuperAdminPage(null).setVisible(true));
-    }
 }
