@@ -164,9 +164,10 @@ public class SuperAdminLoginPage extends JFrame
         boolean loginSuccessful = superAdminController.login(username, password);
 
         if (loginSuccessful) {
-            JOptionPane.showMessageDialog(this, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            Notification.showMessage(this, "Login successful!");
         } else {
-            JOptionPane.showMessageDialog(this, "Invalid username or password.", "Error", JOptionPane.ERROR_MESSAGE);
+            Notification.showErrorMessage(this, "Invalid username or password.");
         }
     }
+
 }
