@@ -3,12 +3,13 @@ package frontend;
 import javax.swing.*;
 import java.awt.*;
 
-public class MainLoginPage extends JFrame {
+public class BranchManagerPage extends JFrame
+{
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
 
-    public MainLoginPage() {
-        setTitle("Metro Billing System - Login");
+    public BranchManagerPage(JFrame previousFrame) {
+        setTitle("Metro Billing System - Branch Manager");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setUndecorated(true);
@@ -39,7 +40,7 @@ public class MainLoginPage extends JFrame {
                 // Tagline
                 g2d.setColor(METRO_BLUE);
                 g2d.setFont(new Font("Arial", Font.BOLD, 24));
-                String tagline = "SELECT YOUR ROLE";
+                String tagline = "BRANCH MANAGER";
                 FontMetrics fm2 = g2d.getFontMetrics();
                 int taglineWidth = fm2.stringWidth(tagline);
                 g2d.drawString(tagline, (getWidth() - taglineWidth) / 2, 160);
@@ -47,11 +48,23 @@ public class MainLoginPage extends JFrame {
         };
         setContentPane(contentPanel);
 
-        // Add exit button
+        // Add exit and return buttons
         ExitButton exitButton = new ExitButton();
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        ReturnButton returnButton = new ReturnButton(this, previousFrame);
+
+        JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
-        topPanel.add(exitButton);
+
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        leftPanel.setOpaque(false);
+        leftPanel.add(returnButton);
+
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightPanel.setOpaque(false);
+        rightPanel.add(exitButton);
+
+        topPanel.add(leftPanel, BorderLayout.WEST);
+        topPanel.add(rightPanel, BorderLayout.EAST);
         contentPanel.add(topPanel, BorderLayout.NORTH);
 
         // Add buttons panel
@@ -68,7 +81,7 @@ public class MainLoginPage extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(20, 0, 20, 0);
 
-        String[] buttonTexts = {"Super Admin", "Branch Manager", "Cashier", "Data Entry Operator"};
+        String[] buttonTexts = {"Create Data Entry Operator", "Create Cashier"};
         for (String text : buttonTexts) {
             JButton button = createStyledButton(text);
             panel.add(button, gbc);
@@ -104,21 +117,18 @@ public class MainLoginPage extends JFrame {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // Add action listeners for navigation
-        if (text.equals("Super Admin")) {
+        if (text.equals("Create Data Entry Operator")) {
             button.addActionListener(e -> {
-                dispose(); // Close the current frame
-                new SuperAdminLoginPage(this).setVisible(true); // Pass the current frame
+                // TODO: Implement Create Data Entry Operator functionality
+                System.out.println("Create Data Entry Operator clicked");
             });
-        }
-        else if (text.equals("Branch Manager"))
-        {
+        } else if (text.equals("Create Cashier")) {
             button.addActionListener(e -> {
-                dispose(); // Close the current frame
-                new BranchManagerLoginPage(this).setVisible(true); // Pass the current frame
+                // TODO: Implement Create Cashier functionality
+                System.out.println("Create Cashier clicked");
             });
         }
 
         return button;
     }
-
 }
