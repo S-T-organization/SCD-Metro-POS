@@ -2,13 +2,14 @@ package frontend;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-public class ExitButton extends JButton
-{
+public class ExitButton extends JButton {
     private static final Color EXIT_RED = new Color(220, 53, 69);
+    private static final Color HOVER_RED = new Color(200, 35, 51);
 
-    public ExitButton()
-    {
+    public ExitButton() {
         setText("X");
         setFont(new Font("Arial", Font.BOLD, 20));
         setForeground(Color.WHITE);
@@ -20,6 +21,18 @@ public class ExitButton extends JButton
         setMargin(new Insets(0, 0, 0, 0));
 
         addActionListener(e -> System.exit(0));
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                setBackground(HOVER_RED);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                setBackground(EXIT_RED);
+            }
+        });
     }
 
     @Override

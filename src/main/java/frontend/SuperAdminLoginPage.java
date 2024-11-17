@@ -2,12 +2,23 @@ package frontend;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import Controller.SuperAdminController;
 
-public class SuperAdminLoginPage extends JFrame {
+public class SuperAdminLoginPage extends JFrame
+{
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
 
-    public SuperAdminLoginPage(JFrame previousFrame) { // Accept the previous frame as a parameter
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+
+    private final SuperAdminController superAdminController;
+
+    public SuperAdminLoginPage(JFrame previousFrame) {
+        superAdminController = new SuperAdminController();
+
         setTitle("Metro Billing System - Super Admin Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -78,15 +89,37 @@ public class SuperAdminLoginPage extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 0, 10, 0);
+        gbc.insets = new Insets(5, 0, 5, 0);
+        gbc.anchor = GridBagConstraints.CENTER;
 
-        JTextField usernameField = createStyledTextField();
-        JPasswordField passwordField = createStyledPasswordField();
+        JLabel usernameLabel = createStyledLabel("Username");
+        usernameField = createStyledTextField();
+        JLabel passwordLabel = createStyledLabel("Password");
+        passwordField = createStyledPasswordField();
         JButton loginButton = createStyledButton("Login");
 
+        // Add ActionListener to the login button
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleLogin();
+            }
+        });
+
+        panel.add(usernameLabel, gbc);
         panel.add(usernameField, gbc);
+        panel.add(Box.createVerticalStrut(10), gbc);
+        panel.add(passwordLabel, gbc);
         panel.add(passwordField, gbc);
+        panel.add(Box.createVerticalStrut(20), gbc);
         panel.add(loginButton, gbc);
+    }
+
+    private JLabel createStyledLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.BOLD, 16));
+        label.setForeground(METRO_BLUE);
+        return label;
     }
 
     private JTextField createStyledTextField() {
@@ -122,5 +155,18 @@ public class SuperAdminLoginPage extends JFrame {
         button.setFocusPainted(false);
         button.setPreferredSize(new Dimension(300, 50));
         return button;
+    }
+
+    private void handleLogin() {
+        String username = usernameField.getText();
+        String password = new String(passwordField.getPassword());
+
+        boolean loginSuccessful = superAdminController.login(username, password);
+
+        if (loginSuccessful) {
+            JOptionPane.showMessageDialog(this, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid username or password.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
