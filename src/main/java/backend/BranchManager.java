@@ -1,11 +1,13 @@
 package backend;
 
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
 public class BranchManager {
+    public  Connection conn;
     private int empId;
     private String branchCode;
     private String name;
@@ -15,7 +17,9 @@ public class BranchManager {
     private String salary;
     private String phoneNumber;
 
-     public  BranchManager() {}
+     public  BranchManager() {
+         conn = DBConnection.getConnection();
+     }
     public BranchManager(int empId, String branchCode, String name, String email, String cnic, String password, String salary, String phoneNumber) {
         this.empId = empId;
         this.branchCode = branchCode;
@@ -104,7 +108,7 @@ public class BranchManager {
 
     // Common function to add employees
     private boolean addEmployee(String branchCode, String name, String email, String role, String salary) {
-        try (Connection conn = DBConnection.getConnection()) {
+        try  {
 
             String createTableQuery = """
                 CREATE TABLE IF NOT EXISTS Employee (
@@ -164,7 +168,7 @@ public class BranchManager {
 
     // Function to change password
     public boolean changePassword(String email, String oldPassword, String newPassword) {
-        try (Connection conn = DBConnection.getConnection()) {
+        try{
             // Verify old password
             String verifyQuery = "SELECT password FROM BranchManager WHERE email = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(verifyQuery)) {

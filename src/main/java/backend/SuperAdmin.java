@@ -1,18 +1,24 @@
 package backend;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class SuperAdmin {
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "admin";
+    private Connection conn;
+
+    public SuperAdmin() {
+        System.out.println("Super Admin Initialized");
+        conn = DBConnection.getConnection(); // Fetch the initial connection
+    }
 
     public boolean login(String inputUsername, String inputPassword) {
         return USERNAME.equals(inputUsername) && PASSWORD.equals(inputPassword);
     }
 
     public boolean createBranch(String branchCode, String name, String city, String address, String phone) {
-        try (Connection conn = DBConnection.getConnection()) {
-
+        try  {
             String createTableQuery = """
                     CREATE TABLE IF NOT EXISTS Branch (
                         branchCode VARCHAR(50) PRIMARY KEY,
@@ -54,7 +60,7 @@ public class SuperAdmin {
     }
 
     public boolean addBranchManager(String branchCode, String name, String email, String cnic, String salary, String phoneNumber) {
-        try (Connection conn = DBConnection.getConnection()) {
+        try  {
             // Verify branch exists
             String branchCheckQuery = "SELECT branchCode FROM Branch WHERE branchCode = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(branchCheckQuery)) {
@@ -67,7 +73,7 @@ public class SuperAdmin {
                 }
             }
 
-            // Create or verify BranchManager table with phoneNumber
+            // Create or verify BranchManager table
             String createTableQuery = """
             CREATE TABLE IF NOT EXISTS BranchManager (
                 empId INT AUTO_INCREMENT PRIMARY KEY,
@@ -86,7 +92,7 @@ public class SuperAdmin {
                 System.out.println("BranchManager table verified/created successfully.");
             }
 
-            // Check for duplicate CNIC after table creation
+            // Check for duplicate CNIC
             String cnicCheckQuery = "SELECT cnic FROM BranchManager WHERE cnic = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(cnicCheckQuery)) {
                 pstmt.setString(1, cnic);
@@ -98,7 +104,8 @@ public class SuperAdmin {
                 }
             }
 
-            // Insert Branch Manager data (including phoneNumber)
+
+            // Insert Branch Manager data
             String insertQuery = """
             INSERT INTO BranchManager (branchCode, name, email, cnic, password, salary, phonenumber)
             VALUES (?, ?, ?, ?, ?, ?, ?);
@@ -110,11 +117,11 @@ public class SuperAdmin {
                 pstmt.setString(4, cnic);
                 pstmt.setString(5, "123"); // Default password
                 pstmt.setString(6, salary);
-                pstmt.setString(7, phoneNumber); // Include phoneNumber
+                pstmt.setString(7, phoneNumber);
 
                 int rowsInserted = pstmt.executeUpdate();
-                increaseEmployeeCount(branchCode);
                 if (rowsInserted > 0) {
+                    increaseEmployeeCount(branchCode);
                     System.out.println("Branch Manager created successfully with default password '123'.");
                     return true;
                 }
@@ -128,16 +135,15 @@ public class SuperAdmin {
 
     public boolean increaseEmployeeCount(String branchCode) {
         String updateBranchQuery = """
-            UPDATE Branch
-            SET noOfEmployees = noOfEmployees + 1
-            WHERE branchCode = ?;
-            """;
-        try (Connection conn = DBConnection.getConnection();
+        UPDATE Branch
+        SET noOfEmployees = noOfEmployees + 1
+        WHERE branchCode = ?;
+        """;
+        try (
              PreparedStatement pstmt = conn.prepareStatement(updateBranchQuery)) {
+            pstmt.setString(1, branchCode);
 
-            pstmt.setString(1, branchCode); // Set the branch code parameter
-
-            int rowsUpdated = pstmt.executeUpdate(); // Execute the update
+            int rowsUpdated = pstmt.executeUpdate();
             if (rowsUpdated > 0) {
                 System.out.println("Employee count updated successfully for branch: " + branchCode);
                 return true;
@@ -150,5 +156,47 @@ public class SuperAdmin {
         }
         return false;
     }
+    public String[] getAllBranchNames() {
+        ArrayList<String> branchNames = new ArrayList<>();
 
+        String query = "SELECT name FROM Branch";
+
+        try (
+             PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                branchNames.add(rs.getString("name"));
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error fetching branch names: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return branchNames.toArray(new String[0]); // Convert ArrayList to String array
+    }
+
+    public String getBranchCodeByName(String branchName) {
+        String branchCode = null;
+        String query = "SELECT branchCode FROM Branch WHERE name = ?";
+
+        try (
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, branchName);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    branchCode = rs.getString("branchCode");
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error fetching branch code for name '" + branchName + "': " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return branchCode;
+    }
 }

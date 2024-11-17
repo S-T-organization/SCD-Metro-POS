@@ -1,5 +1,7 @@
 package frontend;
 
+import Controller.SuperAdminController;
+import backend.DBConnection;
 import backend.SuperAdmin;
 
 import javax.swing.*;
@@ -10,10 +12,10 @@ import java.awt.event.ActionListener;
 public class SuperAdminPage extends JFrame {
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
-    private final SuperAdmin superAdmin;
+    private final SuperAdminController superAdminController;
 
     public SuperAdminPage(JFrame previousFrame) {
-        superAdmin = new SuperAdmin(); // Backend SuperAdmin instance
+        superAdminController = new SuperAdminController();
 
         setTitle("Metro Billing System - Super Admin Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -146,29 +148,39 @@ public class SuperAdminPage extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
+        JTextField branchCodeField = createStyledTextField("Branch Code");
         JTextField branchNameField = createStyledTextField("Branch Name");
         JTextField branchCityField = createStyledTextField("City");
         JTextField branchAddressField = createStyledTextField("Branch Address");
         JTextField branchPhoneField = createStyledTextField("Phone");
         JButton submitButton = createStyledButton("Add Branch");
 
+        addBranchDialog.add(branchCodeField, gbc);
         addBranchDialog.add(branchNameField, gbc);
         addBranchDialog.add(branchCityField, gbc);
         addBranchDialog.add(branchAddressField, gbc);
         addBranchDialog.add(branchPhoneField, gbc);
         addBranchDialog.add(submitButton, gbc);
 
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String branchName = branchNameField.getText();
-                String branchCity = branchCityField.getText();
-                String branchAddress = branchAddressField.getText();
-                String branchPhone = branchPhoneField.getText();
+        submitButton.addActionListener(e -> {
+            String branchCode = branchCodeField.getText();
+            String branchName = branchNameField.getText();
+            String branchCity = branchCityField.getText();
+            String branchAddress = branchAddressField.getText();
+            String branchPhone = branchPhoneField.getText();
 
-                System.out.println(branchName+" "+branchCity+" "+branchAddress+" "+branchPhone);
+            boolean success = superAdminController.createBranch(branchCode, branchName, branchCity, branchAddress, branchPhone);
+
+            if (success) {
+                Notification.showMessage(this, "Branch added successfully!");
+            } else {
+                Notification.showErrorMessage(this, "Failed to add branch. Please try again.");
             }
+            addBranchDialog.dispose();
         });
+
+
+
 
         addBranchDialog.pack();
         addBranchDialog.setLocationRelativeTo(this);
@@ -185,50 +197,49 @@ public class SuperAdminPage extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
+        // Fetch branch names for the combo box
+        String[] branchNames = superAdminController.getAllBranchNames();
+        JComboBox<String> branchSelector = new JComboBox<>(branchNames);
+
         JTextField managerNameField = createStyledTextField("Manager Name");
         JTextField managerEmailField = createStyledTextField("Manager Email");
         JTextField managerCnicField = createStyledTextField("Manager CNIC");
         JTextField managerPhoneField = createStyledTextField("Phone Number");
         JTextField managerSalaryField = createStyledTextField("Salary");
-        JComboBox<String> branchSelector = new JComboBox<>(new String[]{"Branch 1", "Branch 2", "Branch 3"}); // Placeholder branches
         JButton submitButton = createStyledButton("Add Manager");
 
+        addManagerDialog.add(branchSelector, gbc);
         addManagerDialog.add(managerNameField, gbc);
         addManagerDialog.add(managerEmailField, gbc);
         addManagerDialog.add(managerCnicField, gbc);
         addManagerDialog.add(managerPhoneField, gbc);
         addManagerDialog.add(managerSalaryField, gbc);
-        addManagerDialog.add(branchSelector, gbc);
         addManagerDialog.add(submitButton, gbc);
 
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String managerName = managerNameField.getText();
-                String managerEmail = managerEmailField.getText();
-                String managerCnic = managerCnicField.getText();
-                String managerPhone = managerPhoneField.getText();
-                String managerSalary = managerSalaryField.getText();
-                String selectedBranch = (String) branchSelector.getSelectedItem();
+        submitButton.addActionListener(e -> {
+            String selectedBranch = (String) branchSelector.getSelectedItem();
+            String branchCode = superAdminController.getBranchCodeByName(selectedBranch); // Get the branch code
+            String managerName = managerNameField.getText();
+            String managerEmail = managerEmailField.getText();
+            String managerCnic = managerCnicField.getText();
+            String managerPhone = managerPhoneField.getText();
+            String managerSalary = managerSalaryField.getText();
 
-                System.out.println("Adding Branch Manager:");
-                System.out.println("Name: " + managerName);
-                System.out.println("Email: " + managerEmail);
-                System.out.println("CNIC: " + managerCnic);
-                System.out.println("Phone: " + managerPhone);
-                System.out.println("Salary: " + managerSalary);
-                System.out.println("Branch: " + selectedBranch);
-
-                // Placeholder backend call
-                boolean success = true; // Simulate success
-                if (success) {
-                    JOptionPane.showMessageDialog(addManagerDialog, "Branch Manager added successfully!");
-                } else {
-                    JOptionPane.showMessageDialog(addManagerDialog, "Failed to add Branch Manager. Please try again.");
-                }
-                addManagerDialog.dispose();
+            if (branchCode == null || branchCode.isEmpty()) {
+                Notification.showErrorMessage(this, "Unable to find branch code for the selected branch.");
+                return;
             }
+
+            boolean success = superAdminController.addBranchManager(branchCode, managerName, managerEmail, managerCnic, managerSalary, managerPhone);
+
+            if (success) {
+                Notification.showMessage(this, "Branch Manager added successfully!");
+            } else {
+                Notification.showErrorMessage(this, "Failed to add Branch Manager. Please try again.");
+            }
+            addManagerDialog.dispose();
         });
+
 
         addManagerDialog.pack();
         addManagerDialog.setLocationRelativeTo(this);
@@ -237,7 +248,7 @@ public class SuperAdminPage extends JFrame {
 
     private void showReportsDialog() {
         System.out.println("Reports dialog opened.");
-        JOptionPane.showMessageDialog(this, "Reports feature coming soon!");
+        Notification.showMessage(this, "Reports feature coming soon!");
     }
 
     private JTextField createStyledTextField(String placeholder) {
@@ -267,6 +278,11 @@ public class SuperAdminPage extends JFrame {
     }
 
     public static void main(String[] args) {
+
+        if (!DBConnection.isConnectionOpen()) {
+            System.out.println("Connection Open");
+            new DBConnection(); // Reinitialize connection
+        }
         SwingUtilities.invokeLater(() -> new SuperAdminPage(null).setVisible(true));
     }
 }

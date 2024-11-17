@@ -5,10 +5,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-    public static Connection conn = null;
+    private static Connection conn;
 
     public DBConnection() {
-        init();
+        if (conn == null) {
+            init();
+        }
     }
 
     private void init() {
@@ -18,21 +20,34 @@ public class DBConnection {
 
         try {
             conn = DriverManager.getConnection(url, user, password);
-
             if (conn != null) {
                 System.out.println("DB CONNECTED");
             } else {
                 System.out.println("DB NOT CONNECTED");
             }
-
         } catch (SQLException e) {
             System.out.println("DB NOT CONNECTED");
             e.printStackTrace();
         }
-
     }
-    public static   Connection getConnection() {
+
+    public static Connection getConnection() {
+        try {
+            if (conn == null || conn.isClosed()) {
+                new DBConnection(); // Reinitialize the connection
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return conn;
     }
 
+
+    public static boolean isConnectionOpen() {
+        try {
+            return conn != null && !conn.isClosed();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
 }
