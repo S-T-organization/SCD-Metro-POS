@@ -32,13 +32,11 @@ public class DBConnection {
     }
 
     public static Connection getConnection() {
-        try {
-            if (conn == null || conn.isClosed()) {
+
+            if (conn == null ) {
                 new DBConnection(); // Reinitialize the connection
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
         return conn;
     }
 

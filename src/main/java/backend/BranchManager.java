@@ -1,116 +1,51 @@
 package backend;
 
+import frontend.Notification;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class BranchManager {
-    public  Connection conn;
+    private Connection conn;
     private int empId;
     private String branchCode;
     private String name;
     private String email;
-    private String cnic;
+    private String role;
     private String password;
     private String salary;
-    private String phoneNumber;
 
-     public  BranchManager() {
-         conn = DBConnection.getConnection();
-     }
-    public BranchManager(int empId, String branchCode, String name, String email, String cnic, String password, String salary, String phoneNumber) {
-        this.empId = empId;
-        this.branchCode = branchCode;
-        this.name = name;
-        this.email = email;
-        this.cnic = cnic;
-        this.password = password;
-        this.salary = salary;
-        this.phoneNumber = phoneNumber;
+    public BranchManager() {
+        conn = DBConnection.getConnection();
     }
 
-
-    public int getEmpId() {
-        return empId;
-    }
-
-    public void setEmpId(int empId) {
-        this.empId = empId;
-    }
-
-    public String getBranchCode() {
-        return branchCode;
-    }
-
-    public void setBranchCode(String branchCode) {
-        this.branchCode = branchCode;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getCnic() {
-        return cnic;
-    }
-
-    public void setCnic(String cnic) {
-        this.cnic = cnic;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getSalary() {
-        return salary;
-    }
-
-    public void setSalary(String salary) {
-        this.salary = salary;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-
+    // Add Cashier
     public boolean addCashier(String branchCode, String name, String email, String salary) {
         return addEmployee(branchCode, name, email, "cashier", salary);
     }
 
-    // Function to add Data Entry Operator
+    // Add Data Entry Operator
     public boolean addDataEntryOperator(String branchCode, String name, String email, String salary) {
         return addEmployee(branchCode, name, email, "data_entry_operator", salary);
     }
 
-    // Common function to add employees
+    // General function to add employees
     private boolean addEmployee(String branchCode, String name, String email, String role, String salary) {
-        try  {
+        SuperAdmin superAdmin = new SuperAdmin();
+        if (!CheckConnectionOfInternet.isInternetAvailable()) {
 
+            System.out.println("Internet unavailable. Saving operation to file.");
+            String columns = "branchCode,name,email,role,password,salary";
+            String values = String.join(",", branchCode, name, email, role, "123", salary); // Default password is "123"
+            CheckConnectionOfInternet.saveOperationToFile("Employee", columns, values);
+
+
+
+            CheckConnectionOfInternet.writeTempFile(true);
+            return false;
+        }
+
+        try {
             String createTableQuery = """
                 CREATE TABLE IF NOT EXISTS Employee (
                     empId INT AUTO_INCREMENT PRIMARY KEY,
@@ -128,7 +63,6 @@ public class BranchManager {
                 System.out.println("Employee table verified/created successfully.");
             }
 
-            // Check for duplicate email
             String emailCheckQuery = "SELECT email FROM Employee WHERE email = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(emailCheckQuery)) {
                 pstmt.setString(1, email);
@@ -140,23 +74,22 @@ public class BranchManager {
                 }
             }
 
-            // Insert Employee data
             String insertQuery = """
-                INSERT INTO Employee (branchCode, name, email, role, salary)
-                VALUES (?, ?, ?, ?, ?);
+                INSERT INTO Employee (branchCode, name, email, role, password, salary)
+                VALUES (?, ?, ?, ?, ?, ?);
                 """;
             try (PreparedStatement pstmt = conn.prepareStatement(insertQuery)) {
                 pstmt.setString(1, branchCode);
                 pstmt.setString(2, name);
                 pstmt.setString(3, email);
                 pstmt.setString(4, role);
-                pstmt.setString(5, salary);
+                pstmt.setString(5, "123"); // Default password
+                pstmt.setString(6, salary);
 
                 int rowsInserted = pstmt.executeUpdate();
                 if (rowsInserted > 0) {
                     System.out.println(role.substring(0, 1).toUpperCase() + role.substring(1) + " added successfully.");
-                    SuperAdmin superAdmin= new SuperAdmin();
-                    superAdmin.increaseEmployeeCount(branchCode);
+
                     return true;
                 }
             }
@@ -167,11 +100,15 @@ public class BranchManager {
         return false;
     }
 
-    // Function to change password
+    // Change Password
     public boolean changePassword(String email, String oldPassword, String newPassword) {
-        try{
-            // Verify old password
-            String verifyQuery = "SELECT password FROM BranchManager WHERE email = ?";
+        if (!CheckConnectionOfInternet.isInternetAvailable()) {
+            System.out.println("Internet unavailable. Cannot change password.");
+            return false;
+        }
+
+        try {
+            String verifyQuery = "SELECT password FROM Employee WHERE email = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(verifyQuery)) {
                 pstmt.setString(1, email);
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -188,8 +125,7 @@ public class BranchManager {
                 }
             }
 
-            // Update password
-            String updateQuery = "UPDATE BranchManager SET password = ? WHERE email = ?";
+            String updateQuery = "UPDATE Employee SET password = ? WHERE email = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
                 pstmt.setString(1, newPassword);
                 pstmt.setString(2, email);
@@ -207,10 +143,15 @@ public class BranchManager {
         return false;
     }
 
+    // Login Function
     public boolean login(String email, String password, String branchCode) {
+        if (!CheckConnectionOfInternet.isInternetAvailable()) {
+            System.out.println("Internet unavailable. Cannot perform login.");
+            return false;
+        }
+
         try {
-            // Query to validate email, password, and branchCode
-            String query = "SELECT * FROM BranchManager WHERE email = ? AND password = ? AND branchCode = ?";
+            String query = "SELECT * FROM Employee WHERE email = ? AND password = ? AND branchCode = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, email);
                 pstmt.setString(2, password);
@@ -218,17 +159,15 @@ public class BranchManager {
 
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
-                        // Populate the BranchManager object with details of the logged-in user
                         this.empId = rs.getInt("empId");
                         this.branchCode = rs.getString("branchCode");
                         this.name = rs.getString("name");
                         this.email = rs.getString("email");
-                        this.cnic = rs.getString("cnic");
+                        this.role = rs.getString("role");
                         this.password = rs.getString("password");
                         this.salary = rs.getString("salary");
-                        this.phoneNumber = rs.getString("phoneNumber");
 
-                        System.out.println("Login successful for: " + name + " at branch: " + branchCode);
+                        System.out.println("Login successful for: " + name + " (" + role + ") at branch: " + branchCode);
                         return true;
                     } else {
                         System.out.println("Invalid credentials or branch code.");
@@ -242,14 +181,15 @@ public class BranchManager {
         }
         return false;
     }
+
+    // Get All Branch Names
     public String[] getAllBranchNames() {
         ArrayList<String> branchNames = new ArrayList<>();
 
         String query = "SELECT name FROM Branch";
 
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(query);
-                ResultSet rs = pstmt.executeQuery()) {
+        try (PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 branchNames.add(rs.getString("name"));
@@ -263,13 +203,12 @@ public class BranchManager {
         return branchNames.toArray(new String[0]); // Convert ArrayList to String array
     }
 
+    // Get Branch Code by Branch Name
     public String getBranchCodeByName(String branchName) {
         String branchCode = null;
         String query = "SELECT branchCode FROM Branch WHERE name = ?";
 
-        try (
-                PreparedStatement pstmt = conn.prepareStatement(query)) {
-
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, branchName);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -277,7 +216,6 @@ public class BranchManager {
                     branchCode = rs.getString("branchCode");
                 }
             }
-
         } catch (Exception e) {
             System.out.println("Error fetching branch code for name '" + branchName + "': " + e.getMessage());
             e.printStackTrace();
@@ -285,6 +223,7 @@ public class BranchManager {
 
         return branchCode;
     }
+
     @Override
     public String toString() {
         return "BranchManager{" +
@@ -292,10 +231,9 @@ public class BranchManager {
                 ", branchCode='" + branchCode + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", cnic='" + cnic + '\'' +
+                ", role='" + role + '\'' +
+                ", password='" + password + '\'' +
                 ", salary='" + salary + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
                 '}';
     }
-
 }
