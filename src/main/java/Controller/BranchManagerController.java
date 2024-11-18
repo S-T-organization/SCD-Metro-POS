@@ -30,6 +30,7 @@ public class BranchManagerController {
     public boolean login(String email, String password,String BranchCode) {
         return branchManager.login(email, password, BranchCode);
     }
+
     public String[] getAllBranchNames() {
         return branchManager.getAllBranchNames();
     }

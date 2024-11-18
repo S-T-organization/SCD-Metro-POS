@@ -1,5 +1,7 @@
 package frontend;
 
+import Controller.BranchManagerController;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -7,7 +9,11 @@ public class BranchManagerLoginPage extends JFrame {
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
 
+    private final BranchManagerController branchManagerController;
+
     public BranchManagerLoginPage(JFrame previousFrame) {
+        branchManagerController = new BranchManagerController(); // Initialize controller
+
         setTitle("Metro Billing System - Branch Manager Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -81,7 +87,7 @@ public class BranchManagerLoginPage extends JFrame {
         gbc.insets = new Insets(10, 0, 10, 0);
 
         JLabel branchLabel = createStyledLabel("Branch Name");
-        JComboBox<String> branchComboBox = createStyledComboBox(new String[]{"Branch 1", "Branch 2", "Branch 3"});
+        JComboBox<String> branchComboBox = createStyledComboBox(branchManagerController.getAllBranchNames()); // Fetch branch names dynamically
         JLabel emailLabel = createStyledLabel("Email");
         JTextField emailField = createStyledTextField();
         JLabel passwordLabel = createStyledLabel("Password");
@@ -101,10 +107,25 @@ public class BranchManagerLoginPage extends JFrame {
 
         loginButton.addActionListener(e -> {
             String selectedBranch = (String) branchComboBox.getSelectedItem();
+            String branchCode = branchManagerController.getBranchCodeByName(selectedBranch); // Fetch branch code by name
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
-            // TODO: Implement login logic
-            System.out.println("Login attempt - Branch: " + selectedBranch + ", Email: " + email);
+
+            if (branchCode == null || branchCode.isEmpty()) {
+                Notification.showErrorMessage(this, "Invalid branch selected.");
+                return;
+            }
+
+            // Perform login
+            boolean loginSuccessful = branchManagerController.login(email, password, branchCode);
+
+            if (loginSuccessful) {
+                Notification.showMessage(this, "Login successful!");
+                dispose(); // Close the login page
+                SwingUtilities.invokeLater(() -> new BranchManagerPage(this).setVisible(true)); // Navigate to dashboard
+            } else {
+                Notification.showErrorMessage(this, "Invalid email, password, or branch.");
+            }
         });
     }
 
