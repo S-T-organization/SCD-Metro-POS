@@ -131,7 +131,7 @@ public class SuperAdmin {
 
                 int rowsInserted = pstmt.executeUpdate();
                 if (rowsInserted > 0) {
-
+                    increaseEmployeeCount(branchCode);
                     System.out.println("Branch Manager created successfully with default password '123'.");
                     return 1;
                 }

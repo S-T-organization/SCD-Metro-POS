@@ -9,7 +9,7 @@ public class SuperAdminController {
         this.superAdmin = new SuperAdmin();
     }
 
-    public int login(String inputUsername, String inputPassword) {
+    public boolean login(String inputUsername, String inputPassword) {
         return superAdmin.login(inputUsername, inputPassword);
     }
 
