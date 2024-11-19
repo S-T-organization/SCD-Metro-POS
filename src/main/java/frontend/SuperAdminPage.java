@@ -167,23 +167,22 @@ public class SuperAdminPage extends JFrame {
             String branchAddress = branchAddressField.getText();
             String branchPhone = branchPhoneField.getText();
 
-            boolean success = superAdminController.createBranch(branchCode, branchName, branchCity, branchAddress, branchPhone);
+            int resultCode = superAdminController.createBranch(branchCode, branchName, branchCity, branchAddress, branchPhone);
 
-            if (success) {
-                Notification.showMessage(this, "Branch added successfully!");
-            } else {
-                Notification.showErrorMessage(this, "Failed to add branch. Please try again.");
+            String resultMessage = ErrorMapper.getErrorMessage(resultCode);
+            if (resultCode == 1) { // Success
+                Notification.showMessage(this, "Branch Added Sucessfully");
+            } else { // Error
+                Notification.showErrorMessage(this, resultMessage);
             }
             addBranchDialog.dispose();
         });
-
-
-
 
         addBranchDialog.pack();
         addBranchDialog.setLocationRelativeTo(this);
         addBranchDialog.setVisible(true);
     }
+
 
     private void showAddBranchManagerDialog() {
         JDialog addManagerDialog = new JDialog(this, "Add Branch Manager", true);
@@ -195,7 +194,6 @@ public class SuperAdminPage extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        // Fetch branch names for the combo box
         String[] branchNames = superAdminController.getAllBranchNames();
         JComboBox<String> branchSelector = new JComboBox<>(branchNames);
 
@@ -216,7 +214,7 @@ public class SuperAdminPage extends JFrame {
 
         submitButton.addActionListener(e -> {
             String selectedBranch = (String) branchSelector.getSelectedItem();
-            String branchCode = superAdminController.getBranchCodeByName(selectedBranch); // Get the branch code
+            String branchCode = superAdminController.getBranchCodeByName(selectedBranch);
             String managerName = managerNameField.getText();
             String managerEmail = managerEmailField.getText();
             String managerCnic = managerCnicField.getText();
@@ -228,21 +226,22 @@ public class SuperAdminPage extends JFrame {
                 return;
             }
 
-            boolean success = superAdminController.addBranchManager(branchCode, managerName, managerEmail, managerCnic, managerSalary, managerPhone);
+            int resultCode = superAdminController.addBranchManager(branchCode, managerName, managerEmail, managerCnic, managerSalary, managerPhone);
 
-            if (success) {
-                Notification.showMessage(this, "Branch Manager added successfully!");
-            } else {
-                Notification.showErrorMessage(this, "Failed to add Branch Manager. Please try again.");
+            String resultMessage = ErrorMapper.getErrorMessage(resultCode);
+            if (resultCode == 1) { // Success
+                Notification.showMessage(this, "Branch Manager Added Sucessfully");
+            } else { // Error
+                Notification.showErrorMessage(this, resultMessage);
             }
             addManagerDialog.dispose();
         });
-
 
         addManagerDialog.pack();
         addManagerDialog.setLocationRelativeTo(this);
         addManagerDialog.setVisible(true);
     }
+
 
     private void showReportsDialog() {
         System.out.println("Reports dialog opened.");
