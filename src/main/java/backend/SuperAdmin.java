@@ -17,7 +17,7 @@ public class SuperAdmin {
         return USERNAME.equals(inputUsername) && PASSWORD.equals(inputPassword);
     }
 
-    public boolean createBranch(String branchCode, String name, String city, String address, String phone) {
+    public int createBranch(String branchCode, String name, String city, String address, String phone) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             // Save operation to file when database is disconnected
             String columns = "branchCode,name,city,address,phone,noOfEmployees,isActive";
@@ -25,7 +25,7 @@ public class SuperAdmin {
             CheckConnectionOfInternet.saveOperationToFile("Branch", columns, values);
             CheckConnectionOfInternet.writeTempFile(true);
             System.out.println("Database not connected. Branch creation operation saved to file.");
-            return false;
+            return -1;
         }
 
         try {
@@ -61,17 +61,17 @@ public class SuperAdmin {
                 int rowsInserted = pstmt.executeUpdate();
                 if (rowsInserted > 0) {
                     System.out.println("Branch created successfully.");
-                    return true;
+                    return 1;
                 }
             }
         } catch (Exception e) {
             System.out.println("Error creating branch: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return 0;
     }
 
-    public boolean addBranchManager(String branchCode, String name, String email, String cnic, String salary, String phoneNumber) {
+    public int addBranchManager(String branchCode, String name, String email, String cnic, String salary, String phoneNumber) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             // Save operation to file when database is disconnected
             String columns = "branchCode,name,email,cnic,password,salary,phoneNumber";
@@ -82,7 +82,7 @@ public class SuperAdmin {
 
 
             System.out.println("Database not connected. Branch Manager creation operation saved to file.");
-            return false;
+            return -1;
         }
 
         try {
@@ -93,7 +93,7 @@ public class SuperAdmin {
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (!rs.next()) {
                         System.out.println("Branch does not exist. Cannot add Branch Manager.");
-                        return false;
+                        return 2;
                     }
                 }
             }
@@ -133,17 +133,17 @@ public class SuperAdmin {
                 if (rowsInserted > 0) {
 
                     System.out.println("Branch Manager created successfully with default password '123'.");
-                    return true;
+                    return 1;
                 }
             }
         } catch (Exception e) {
             System.out.println("Error creating Branch Manager: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return 0;
     }
 
-    public boolean increaseEmployeeCount(String branchCode) {
+    public int increaseEmployeeCount(String branchCode) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             // Save the operation to the update file when database is disconnected
             String updateQuery = "UPDATE Branch SET noOfEmployees = noOfEmployees + 1 WHERE branchCode = ?";
@@ -151,7 +151,7 @@ public class SuperAdmin {
             CheckConnectionOfInternet.saveUpdateToFile("Branch", updateQuery, params);
             CheckConnectionOfInternet.writeTempFile(true);
             System.out.println("Database not connected. Employee count increment saved to file.");
-            return false;
+            return -1;
         }
 
         String updateBranchQuery = """
@@ -165,18 +165,20 @@ public class SuperAdmin {
             int rowsUpdated = pstmt.executeUpdate();
             if (rowsUpdated > 0) {
                 System.out.println("Employee count updated successfully for branch: " + branchCode);
-                return true;
+                return 1;
             } else {
                 System.out.println("No branch found with the provided branchCode: " + branchCode);
+                return 2;
             }
         } catch (Exception e) {
             System.out.println("Error updating employee count: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return 0;
     }
 
     public String[] getAllBranchNames() {
+
         ArrayList<String> branchNames = new ArrayList<>();
 
         String query = "SELECT name FROM Branch";
@@ -197,6 +199,7 @@ public class SuperAdmin {
     }
 
     public String getBranchCodeByName(String branchName) {
+
         String branchCode = null;
         String query = "SELECT branchCode FROM Branch WHERE name = ?";
 

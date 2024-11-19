@@ -20,17 +20,17 @@ public class BranchManager {
     }
 
     // Add Cashier
-    public boolean addCashier(String branchCode, String name, String email, String salary) {
+    public int addCashier(String branchCode, String name, String email, String salary) {
         return addEmployee(branchCode, name, email, "cashier", salary);
     }
 
     // Add Data Entry Operator
-    public boolean addDataEntryOperator(String branchCode, String name, String email, String salary) {
+    public int addDataEntryOperator(String branchCode, String name, String email, String salary) {
         return addEmployee(branchCode, name, email, "data_entry_operator", salary);
     }
 
     // General function to add employees
-    private boolean addEmployee(String branchCode, String name, String email, String role, String salary) {
+    private int addEmployee(String branchCode, String name, String email, String role, String salary) {
         SuperAdmin superAdmin = new SuperAdmin();
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
 
@@ -42,7 +42,7 @@ public class BranchManager {
 
 
             CheckConnectionOfInternet.writeTempFile(true);
-            return false;
+            return -1;
         }
 
         try {
@@ -69,7 +69,7 @@ public class BranchManager {
                 try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next()) {
                         System.out.println("Duplicate email detected. Cannot add employee.");
-                        return false;
+                        return 3;
                     }
                 }
             }
@@ -90,21 +90,21 @@ public class BranchManager {
                 if (rowsInserted > 0) {
                     System.out.println(role.substring(0, 1).toUpperCase() + role.substring(1) + " added successfully.");
 
-                    return true;
+                    return 1;
                 }
             }
         } catch (Exception e) {
             System.out.println("Error adding " + role + ": " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return 0;
     }
 
     // Change Password
-    public boolean changePassword(String email, String oldPassword, String newPassword) {
+    public int changePassword(String email, String oldPassword, String newPassword) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             System.out.println("Internet unavailable. Cannot change password.");
-            return false;
+            return -1;
         }
 
         try {
@@ -116,11 +116,11 @@ public class BranchManager {
                         String currentPassword = rs.getString("password");
                         if (!currentPassword.equals(oldPassword)) {
                             System.out.println("Old password is incorrect.");
-                            return false;
+                            return 4;
                         }
                     } else {
                         System.out.println("Employee not found.");
-                        return false;
+                        return 5;
                     }
                 }
             }
@@ -133,21 +133,21 @@ public class BranchManager {
                 int rowsUpdated = pstmt.executeUpdate();
                 if (rowsUpdated > 0) {
                     System.out.println("Password updated successfully.");
-                    return true;
+                    return 1;
                 }
             }
         } catch (Exception e) {
             System.out.println("Error updating password: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return 0;
     }
 
     // Login Function
-    public boolean login(String email, String password, String branchCode) {
+    public int login(String email, String password, String branchCode) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             System.out.println("Internet unavailable. Cannot perform login.");
-            return false;
+            return -1;
         }
 
         try {
@@ -168,10 +168,10 @@ public class BranchManager {
                         this.salary = rs.getString("salary");
 
                         System.out.println("Login successful for: " + name + " (" + role + ") at branch: " + branchCode);
-                        return true;
+                        return 1;
                     } else {
                         System.out.println("Invalid credentials or branch code.");
-                        return false;
+                        return 6;
                     }
                 }
             }
@@ -179,7 +179,7 @@ public class BranchManager {
             System.out.println("Error during login: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return 0;
     }
 
     // Get All Branch Names

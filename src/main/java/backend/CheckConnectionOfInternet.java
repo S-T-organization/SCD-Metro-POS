@@ -10,7 +10,7 @@ public class CheckConnectionOfInternet {
     private static final String TEMP_FILE = "temp.txt";
     private static final String DATA_FILE = "data.txt";
     private static final String UPDATE_FILE = "update.txt"; // Separate file for update queries
-    private static Connection conn; // Static connection initialized once
+    private static Connection conn;
     private static boolean wasInternetAvailable = false; // Tracks previous internet state
     private static String lastErrorMessage = null; // Tracks the last SQL error
 

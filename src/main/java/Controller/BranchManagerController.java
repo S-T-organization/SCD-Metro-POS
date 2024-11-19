@@ -12,22 +12,22 @@ public class BranchManagerController {
     }
 
 
-    public boolean addCashier(String branchCode, String name, String email, String salary) {
+    public int addCashier(String branchCode, String name, String email, String salary) {
         // Call the addCashier method of BranchManager class
         return branchManager.addCashier(branchCode, name, email, salary);
     }
 
 
-    public boolean addDataEntryOperator(String branchCode, String name, String email, String salary) {
+    public int addDataEntryOperator(String branchCode, String name, String email, String salary) {
         return branchManager.addDataEntryOperator(branchCode, name, email, salary);
     }
 
 
-    public boolean changePassword(String email, String oldPassword, String newPassword) {
+    public int changePassword(String email, String oldPassword, String newPassword) {
         return branchManager.changePassword(email, oldPassword, newPassword);
     }
 
-    public boolean login(String email, String password,String BranchCode) {
+    public int login(String email, String password,String BranchCode) {
         return branchManager.login(email, password, BranchCode);
     }
 
