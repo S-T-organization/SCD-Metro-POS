@@ -1,6 +1,5 @@
 package backend;
 
-import frontend.Notification;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,9 +10,10 @@ public class BranchManager {
     private String branchCode;
     private String name;
     private String email;
-    private String role;
+    private String cnic;
     private String password;
     private String salary;
+    private String phoneNumber;
 
     public BranchManager() {
         conn = DBConnection.getConnection();
@@ -151,7 +151,7 @@ public class BranchManager {
         }
 
         try {
-            String query = "SELECT * FROM Employee WHERE email = ? AND password = ? AND branchCode = ?";
+            String query = "SELECT * FROM BranchManager WHERE email = ? AND password = ? AND branchCode = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, email);
                 pstmt.setString(2, password);
@@ -163,11 +163,11 @@ public class BranchManager {
                         this.branchCode = rs.getString("branchCode");
                         this.name = rs.getString("name");
                         this.email = rs.getString("email");
-                        this.role = rs.getString("role");
+                        this.cnic = rs.getString("cnic");
                         this.password = rs.getString("password");
                         this.salary = rs.getString("salary");
-
-                        System.out.println("Login successful for: " + name + " (" + role + ") at branch: " + branchCode);
+                        this.phoneNumber = rs.getString("phonenumber");
+                        System.out.println("Login Successfull!!");
                         return 1;
                     } else {
                         System.out.println("Invalid credentials or branch code.");
@@ -231,7 +231,7 @@ public class BranchManager {
                 ", branchCode='" + branchCode + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", role='" + role + '\'' +
+
                 ", password='" + password + '\'' +
                 ", salary='" + salary + '\'' +
                 '}';
