@@ -117,8 +117,13 @@ public class MainLoginPage extends JFrame {
                 new BranchManagerLoginPage(this).setVisible(true); // Pass the current frame
             });
         }
+        else if (text.equals("Data Entry Operator")) {
+            button.addActionListener(e -> {
+                dispose(); // Close the current frame
+                //new DataEntryOperatorLoginPage(this).setVisible(true); // Pass the current frame
+            });
+        }
 
         return button;
     }
-
 }

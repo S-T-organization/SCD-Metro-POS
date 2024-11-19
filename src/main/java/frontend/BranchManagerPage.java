@@ -161,12 +161,13 @@ public class BranchManagerPage extends JFrame {
             String email = emailField.getText();
             String salary = salaryField.getText();
 
-            boolean success = branchManagerController.addDataEntryOperator(branchCode, name, email, salary);
+            int resultCode = branchManagerController.addDataEntryOperator(branchCode, name, email, salary);
 
-            if (success) {
-                Notification.showMessage(this, "Data Entry Operator created successfully!");
-            } else {
-                Notification.showErrorMessage(this, "Failed to create Data Entry Operator. Please try again.");
+            String resultMessage = ErrorMapper.getErrorMessage(resultCode);
+            if (resultCode == 1) { // Success
+                Notification.showMessage(this, "Data Entry Operator Added Sucessfully");
+            } else { // Error
+                Notification.showErrorMessage(this, resultMessage);
             }
             dialog.dispose();
         });
@@ -206,12 +207,13 @@ public class BranchManagerPage extends JFrame {
             String email = emailField.getText();
             String salary = salaryField.getText();
 
-            boolean success = branchManagerController.addCashier(branchCode, name, email, salary);
+            int resultCode = branchManagerController.addCashier(branchCode, name, email, salary);
 
-            if (success) {
-                Notification.showMessage(this, "Cashier created successfully!");
-            } else {
-                Notification.showErrorMessage(this, "Failed to create Cashier. Please try again.");
+            String resultMessage = ErrorMapper.getErrorMessage(resultCode);
+            if (resultCode == 1) { // Success
+                Notification.showMessage(this, "Cashier Added Sucessfully");
+            } else { // Error
+                Notification.showErrorMessage(this, resultMessage);
             }
             dialog.dispose();
         });

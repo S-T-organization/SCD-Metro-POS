@@ -2,9 +2,13 @@ package frontend;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+
+import backend.CheckConnectionOfInternet;
 import backend.DBConnection;
 
-public class MetroBillingSplashScreen extends JWindow {
+public class MetroBillingSplashScreen extends JWindow
+{
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
@@ -13,7 +17,8 @@ public class MetroBillingSplashScreen extends JWindow {
     private float progress = 0;
     private float slideIn = -1.0f;
 
-    public MetroBillingSplashScreen() {
+    public MetroBillingSplashScreen()
+    {
         setSize(WIDTH, HEIGHT);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -94,13 +99,14 @@ public class MetroBillingSplashScreen extends JWindow {
 
     public static void main(String[] args)
     {
-        if (!DBConnection.isConnectionOpen()) {
-            System.out.println("Connection Open");
-            new DBConnection(); // Reinitialize connection
-        }
+        Connection conn  = DBConnection.getConnection();
+        CheckConnectionOfInternet check = new CheckConnectionOfInternet();
+        check.monitorInternet();
+
         SwingUtilities.invokeLater(() -> {
             MetroBillingSplashScreen splash = new MetroBillingSplashScreen();
             splash.setVisible(true);
         });
     }
 }
+

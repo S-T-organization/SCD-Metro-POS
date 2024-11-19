@@ -5,7 +5,8 @@ import Controller.BranchManagerController;
 import javax.swing.*;
 import java.awt.*;
 
-public class BranchManagerLoginPage extends JFrame {
+public class BranchManagerLoginPage extends JFrame
+{
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
 
@@ -108,6 +109,7 @@ public class BranchManagerLoginPage extends JFrame {
         loginButton.addActionListener(e -> {
             String selectedBranch = (String) branchComboBox.getSelectedItem();
             String branchCode = branchManagerController.getBranchCodeByName(selectedBranch); // Fetch branch code by name
+            System.out.println("Branch Code :" + branchCode);
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
 
@@ -117,17 +119,23 @@ public class BranchManagerLoginPage extends JFrame {
             }
 
             // Perform login
-            boolean loginSuccessful = branchManagerController.login(email, password, branchCode);
+            int resultCode = branchManagerController.login(email, password, branchCode);
 
-            if (loginSuccessful) {
-                Notification.showMessage(this, "Login successful!");
+            // Map result code to error message
+            String resultMessage = ErrorMapper.getErrorMessage(resultCode);
+
+            if (resultCode == 1)
+            { // Success case
+                Notification.showMessage(this, "Login Sucessfull");
                 dispose(); // Close the login page
                 SwingUtilities.invokeLater(() -> new BranchManagerPage(this).setVisible(true)); // Navigate to dashboard
-            } else {
-                Notification.showErrorMessage(this, "Invalid email, password, or branch.");
+            } else
+            { // Error case
+                Notification.showErrorMessage(this, "uhytdrsdtfyguhihugyftdrshe");
             }
         });
     }
+
 
     private JLabel createStyledLabel(String text) {
         JLabel label = new JLabel(text);
