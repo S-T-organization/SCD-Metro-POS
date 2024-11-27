@@ -1,24 +1,23 @@
 package frontend;
 
+//import Controller.DataEntryOperatorController;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-//import Controller.DataEntryOperatorController;
 
-public class DataEntryOperatorLoginPage extends JFrame
-{
+public class DataEntryOperatorLoginPage extends JFrame {
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
 
-    private JTextField branchCodeField;
-    private JTextField usernameField;
+    private JComboBox<String> branchComboBox;
+    private JTextField emailField;
     private JPasswordField passwordField;
 
     //private final DataEntryOperatorController dataEntryOperatorController;
 
-    public DataEntryOperatorLoginPage(JFrame previousFrame)
-    {
+    public DataEntryOperatorLoginPage(JFrame previousFrame) {
         //dataEntryOperatorController = new DataEntryOperatorController();
 
         setTitle("Metro Billing System - Data Entry Operator Login");
@@ -91,35 +90,37 @@ public class DataEntryOperatorLoginPage extends JFrame
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 0, 5, 0);
-        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(10, 0, 10, 0);
 
-        JLabel branchCodeLabel = createStyledLabel("Branch Code");
-        branchCodeField = createStyledTextField();
-        JLabel usernameLabel = createStyledLabel("Email");
-        usernameField = createStyledTextField();
+        JLabel branchLabel = createStyledLabel("Branch Name");
+
+        // Initialize branchComboBox
+        //String[] branchNames = dataEntryOperatorController.getAllBranchNames();
+        //branchComboBox = createStyledComboBox(branchNames);
+
+        JLabel emailLabel = createStyledLabel("Email");
+        emailField = createStyledTextField();
         JLabel passwordLabel = createStyledLabel("Password");
         passwordField = createStyledPasswordField();
         JButton loginButton = createStyledButton("Login");
 
-        // Add ActionListener to the login button
+        panel.add(branchLabel, gbc);
+        panel.add(branchComboBox, gbc);
+        panel.add(Box.createVerticalStrut(10), gbc);
+        panel.add(emailLabel, gbc);
+        panel.add(emailField, gbc);
+        panel.add(Box.createVerticalStrut(10), gbc);
+        panel.add(passwordLabel, gbc);
+        panel.add(passwordField, gbc);
+        panel.add(Box.createVerticalStrut(20), gbc);
+        panel.add(loginButton, gbc);
+
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 handleLogin();
             }
         });
-
-        panel.add(branchCodeLabel, gbc);
-        panel.add(branchCodeField, gbc);
-        panel.add(Box.createVerticalStrut(10), gbc);
-        panel.add(usernameLabel, gbc);
-        panel.add(usernameField, gbc);
-        panel.add(Box.createVerticalStrut(10), gbc);
-        panel.add(passwordLabel, gbc);
-        panel.add(passwordField, gbc);
-        panel.add(Box.createVerticalStrut(20), gbc);
-        panel.add(loginButton, gbc);
     }
 
     private JLabel createStyledLabel(String text) {
@@ -129,56 +130,97 @@ public class DataEntryOperatorLoginPage extends JFrame
         return label;
     }
 
+    private JComboBox<String> createStyledComboBox(String[] items) {
+        JComboBox<String> comboBox = new JComboBox<>(items);
+        comboBox.setFont(new Font("Arial", Font.PLAIN, 16));
+        comboBox.setForeground(METRO_BLUE);
+        comboBox.setBackground(Color.WHITE);
+        comboBox.setBorder(BorderFactory.createLineBorder(METRO_BLUE, 2));
+        comboBox.setPreferredSize(new Dimension(250, 30));
+        return comboBox;
+    }
+
     private JTextField createStyledTextField() {
         JTextField textField = new JTextField(20);
-        textField.setFont(new Font("Arial", Font.PLAIN, 18));
+        textField.setFont(new Font("Arial", Font.PLAIN, 16));
         textField.setForeground(METRO_BLUE);
         textField.setBackground(Color.WHITE);
         textField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(METRO_BLUE, 2),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)));
-        textField.setPreferredSize(new Dimension(300, 40));
         return textField;
     }
 
     private JPasswordField createStyledPasswordField() {
         JPasswordField passwordField = new JPasswordField(20);
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 18));
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 16));
         passwordField.setForeground(METRO_BLUE);
         passwordField.setBackground(Color.WHITE);
         passwordField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(METRO_BLUE, 2),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)));
-        passwordField.setPreferredSize(new Dimension(300, 40));
         return passwordField;
     }
 
     private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 20));
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                if (getModel().isPressed()) {
+                    g2d.setColor(METRO_BLUE.darker());
+                } else if (getModel().isRollover()) {
+                    g2d.setColor(METRO_BLUE.brighter());
+                } else {
+                    g2d.setColor(METRO_BLUE);
+                }
+
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                g2d.dispose();
+                super.paintComponent(g);
+            }
+        };
         button.setForeground(Color.WHITE);
-        button.setBackground(METRO_BLUE);
+        button.setFont(new Font("Arial", Font.BOLD, 18));
+        button.setPreferredSize(new Dimension(200, 50));
+        button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
-        button.setPreferredSize(new Dimension(300, 50));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return button;
     }
 
     private void handleLogin() {
-        String branchCode = branchCodeField.getText();
-        String username = usernameField.getText();
+        String selectedBranch = (String) branchComboBox.getSelectedItem();
+        //String branchCode = dataEntryOperatorController.getBranchCodeByName(selectedBranch);
+        String email = emailField.getText();
         String password = new String(passwordField.getPassword());
+/*
+        if (branchCode == null || branchCode.isEmpty()) {
+            Notification.showErrorMessage(this, "Invalid branch selected.");
+            return;
+        }
+
+ */
 
         /*
-        boolean loginSuccessful = dataEntryOperatorController.login(branchCode, username, password);
+        // Perform login
+        int resultCode = dataEntryOperatorController.login(email, password, branchCode);
 
-        if (loginSuccessful) {
-            Notification.showMessage(this, "Login successful!");
-            dispose();
-            SwingUtilities.invokeLater(() -> new DataEntryOperatorPage(this).setVisible(true));
-        } else {
-            Notification.showErrorMessage(this, "Invalid branch code, username, or password.");
+        // Map result code to error message
+        String resultMessage = ErrorMapper.getErrorMessage(resultCode);
+
+        if (resultCode == 1) { // Success case
+            Notification.showMessage(this, "Login Successful");
+            dispose(); // Close the login page
+            // SwingUtilities.invokeLater(() -> new DataEntryOperatorPage(this).setVisible(true)); // Navigate to dashboard
+        } else { // Error case
+            Notification.showErrorMessage(this, resultMessage);
         }
-         */
+        */
+
     }
 }
+

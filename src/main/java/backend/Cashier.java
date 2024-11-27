@@ -3,7 +3,8 @@ package backend;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class Cashier {
+public class Cashier
+{
     private Connection conn;
     private int empId;
     private String branchCode;

@@ -68,7 +68,7 @@ public class MainLoginPage extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(20, 0, 20, 0);
 
-        String[] buttonTexts = {"Super Admin", "Branch Manager", "Cashier", "Data Entry Operator"};
+        String[] buttonTexts = {"Super Admin", "Branch Manager", "Data Entry Operator", "Cashier"};
         for (String text : buttonTexts) {
             JButton button = createStyledButton(text);
             panel.add(button, gbc);
