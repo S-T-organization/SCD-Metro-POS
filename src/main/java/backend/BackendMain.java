@@ -25,7 +25,7 @@ public class BackendMain {
         scanner.nextLine();
 //        System.out.println(  superAdmin.createBranch("0", "Main Branch2", "City A", "Address A", "1234567890"));
 //
-          System.out.println(superAdmin.addBranchManager("40","hiuh","@gmail.com","54403791","545465","15164811"));
+          System.out.println(superAdmin.addBranchManager("40","hiuh","@gmai.com","544031","545465","15164811"));
 //
 
 

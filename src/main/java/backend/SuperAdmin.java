@@ -179,6 +179,9 @@ public class SuperAdmin {
 
     public String[] getAllBranchNames() {
 
+        if (!CheckConnectionOfInternet.isInternetAvailable()){
+            return null;
+        }
         ArrayList<String> branchNames = new ArrayList<>();
 
         String query = "SELECT name FROM Branch";
@@ -199,7 +202,9 @@ public class SuperAdmin {
     }
 
     public String getBranchCodeByName(String branchName) {
-
+        if (!CheckConnectionOfInternet.isInternetAvailable()){
+            return null;
+        }
         String branchCode = null;
         String query = "SELECT branchCode FROM Branch WHERE name = ?";
 

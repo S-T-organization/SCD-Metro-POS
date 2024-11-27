@@ -181,6 +181,9 @@ public class BranchManager {
 
     // Get All Branch Names
     public String[] getAllBranchNames() {
+        if (!CheckConnectionOfInternet.isInternetAvailable()){
+            return null;
+        }
         ArrayList<String> branchNames = new ArrayList<>();
 
         String query = "SELECT name FROM Branch";
@@ -202,6 +205,9 @@ public class BranchManager {
 
     // Get Branch Code by Branch Name
     public String getBranchCodeByName(String branchName) {
+        if (!CheckConnectionOfInternet.isInternetAvailable()){
+            return null;
+        }
         String branchCode = null;
         String query = "SELECT branchCode FROM Branch WHERE name = ?";
 

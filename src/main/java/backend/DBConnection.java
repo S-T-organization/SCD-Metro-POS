@@ -18,9 +18,9 @@ public class DBConnection
 
     private void init()
     {
-        String url = "jdbc:mysql://sql12.freesqldatabase.com:3306/sql12745785";
-        String user = "sql12745785";
-        String password = "BwBxhPpNBP";
+        String url = "jdbc:mysql://sql12.freesqldatabase.com:3306/sql12747985";
+        String user = "sql12747985";
+        String password = "8yfeA4mWG9";
 
         try {
             conn = DriverManager.getConnection(url, user, password);
