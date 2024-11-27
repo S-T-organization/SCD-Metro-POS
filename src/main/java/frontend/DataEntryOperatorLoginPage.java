@@ -1,6 +1,6 @@
 package frontend;
 
-//import Controller.DataEntryOperatorController;
+import Controller.DataEntryOperatorController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,10 +15,10 @@ public class DataEntryOperatorLoginPage extends JFrame {
     private JTextField emailField;
     private JPasswordField passwordField;
 
-    //private final DataEntryOperatorController dataEntryOperatorController;
+    private final DataEntryOperatorController dataEntryOperatorController;
 
     public DataEntryOperatorLoginPage(JFrame previousFrame) {
-        //dataEntryOperatorController = new DataEntryOperatorController();
+        dataEntryOperatorController = new DataEntryOperatorController();
 
         setTitle("Metro Billing System - Data Entry Operator Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -95,8 +95,8 @@ public class DataEntryOperatorLoginPage extends JFrame {
         JLabel branchLabel = createStyledLabel("Branch Name");
 
         // Initialize branchComboBox
-        //String[] branchNames = dataEntryOperatorController.getAllBranchNames();
-        //branchComboBox = createStyledComboBox(branchNames);
+        String[] branchNames = dataEntryOperatorController.getAllBranchNames();
+        branchComboBox = createStyledComboBox(branchNames);
 
         JLabel emailLabel = createStyledLabel("Email");
         emailField = createStyledTextField();
@@ -194,33 +194,31 @@ public class DataEntryOperatorLoginPage extends JFrame {
 
     private void handleLogin() {
         String selectedBranch = (String) branchComboBox.getSelectedItem();
-        //String branchCode = dataEntryOperatorController.getBranchCodeByName(selectedBranch);
+        String branchCode = dataEntryOperatorController.getBranchCodeByName(selectedBranch);
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());
-/*
+
         if (branchCode == null || branchCode.isEmpty()) {
             Notification.showErrorMessage(this, "Invalid branch selected.");
             return;
         }
 
- */
-
-        /*
         // Perform login
         int resultCode = dataEntryOperatorController.login(email, password, branchCode);
 
-        // Map result code to error message
         String resultMessage = ErrorMapper.getErrorMessage(resultCode);
 
-        if (resultCode == 1) { // Success case
+        if (resultCode == 1)
+        {
+            // Success case
             Notification.showMessage(this, "Login Successful");
             dispose(); // Close the login page
             // SwingUtilities.invokeLater(() -> new DataEntryOperatorPage(this).setVisible(true)); // Navigate to dashboard
-        } else { // Error case
+        } else
+        {
+            // Error case
             Notification.showErrorMessage(this, resultMessage);
         }
-        */
-
     }
 }
 
