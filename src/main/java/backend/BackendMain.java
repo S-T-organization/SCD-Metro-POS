@@ -11,23 +11,27 @@ public class BackendMain {
         Connection conn  = DBConnection.getConnection();
        CheckConnectionOfInternet check = new CheckConnectionOfInternet();
        check.monitorInternet();
+//       BranchManager manager = new BranchManager();
+//       manager.addCashier("101","Saim","cym786@gmail.com","122200");
+//       manager.addDataEntryOperator("101","Talha","tato@gmail,com","100000");
 
-
-//        // Testing SuperAdmin functionalities
-          SuperAdmin superAdmin = new SuperAdmin();
-//        System.out.println("\n=== Testing Branch Creation ===");
-        //System.out.println( superAdmin.createBranch("40", "Main Branch", "City A", "Address A", "1234567890"));
-//        System.out.println(superAdmin.createBranch("40", "Branch1", "Lahore", "Paki", "1234567890"));
-//
-//        // Pause for user to turn off Wi-Fi
-        System.out.println("\nPlease turn off your Wi-Fi and press Enter to continue testing offline mode...");
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
-//        System.out.println(  superAdmin.createBranch("0", "Main Branch2", "City A", "Address A", "1234567890"));
-//
-          System.out.println(superAdmin.addBranchManager("40","hiuh","@gmai.com","544031","545465","15164811"));
-//
-
+////        // Testing SuperAdmin functionalities
+//          SuperAdmin superAdmin = new SuperAdmin();
+////        System.out.println("\n=== Testing Branch Creation ===");
+//        //System.out.println( superAdmin.createBranch("40", "Main Branch", "City A", "Address A", "1234567890"));
+////        System.out.println(superAdmin.createBranch("40", "Branch1", "Lahore", "Paki", "1234567890"));
+////
+////        // Pause for user to turn off Wi-Fi
+//        System.out.println("\nPlease turn off your Wi-Fi and press Enter to continue testing offline mode...");
+//        Scanner scanner = new Scanner(System.in);
+//        scanner.nextLine();
+////        System.out.println(  superAdmin.createBranch("0", "Main Branch2", "City A", "Address A", "1234567890"));
+////
+//         // System.out.println(superAdmin.addBranchManager("40","hiuh","@gmai.com","544031","545465","15164811"));
+////
+        DataEntryOperator data = new DataEntryOperator();
+        System.out.println(data.login("tato@gmail,com","123","101"));
+        String []names = data.getAllBranchNames();
 
     }
 }
