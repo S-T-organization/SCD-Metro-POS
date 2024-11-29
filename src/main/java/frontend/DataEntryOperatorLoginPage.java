@@ -197,7 +197,7 @@ public class DataEntryOperatorLoginPage extends JFrame {
         String branchCode = dataEntryOperatorController.getBranchCodeByName(selectedBranch);
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());
-
+        System.out.println("Branch Code :" + branchCode);
         if (branchCode == null || branchCode.isEmpty()) {
             Notification.showErrorMessage(this, "Invalid branch selected.");
             return;

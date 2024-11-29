@@ -107,11 +107,13 @@ public class BranchManagerLoginPage extends JFrame
         panel.add(loginButton, gbc);
 
         loginButton.addActionListener(e -> {
+
             String selectedBranch = (String) branchComboBox.getSelectedItem();
-            String branchCode = branchManagerController.getBranchCodeByName(selectedBranch); // Fetch branch code by name
+            String branchCode = branchManagerController.getBranchCodeByName(selectedBranch);
             System.out.println("Branch Code :" + branchCode);
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
+
 
             if (branchCode == null || branchCode.isEmpty()) {
                 Notification.showErrorMessage(this, "Invalid branch selected.");
