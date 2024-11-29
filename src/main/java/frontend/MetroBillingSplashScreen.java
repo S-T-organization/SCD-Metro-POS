@@ -70,11 +70,13 @@ public class MetroBillingSplashScreen extends JWindow
 
             }
         };
+
         content.setBackground(METRO_YELLOW);
         add(content, BorderLayout.CENTER);
 
         // Animation timer
-        Timer timer = new Timer(10, e -> {
+        Timer timer = new Timer(10, e ->
+        {
             progress += 0.01f;
             slideIn += 0.05f;
 
@@ -82,7 +84,8 @@ public class MetroBillingSplashScreen extends JWindow
 
             if (progress >= 1) {
                 ((Timer)e.getSource()).stop();
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(() ->
+                {
                     try {
                         Thread.sleep(500);
                         dispose();
