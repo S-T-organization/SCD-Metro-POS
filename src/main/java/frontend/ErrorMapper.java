@@ -16,6 +16,8 @@ public class ErrorMapper {
         errorMessages.put(4, "Old password is incorrect.");
         errorMessages.put(5, "Employee not found.");
         errorMessages.put(6, "Invalid login credentials.");
+        errorMessages.put(7, "Vendor Does not exist.");
+        errorMessages.put(-3,"Error occurred while entering the Product!");
     }
 
     public static String getErrorMessage(int code)

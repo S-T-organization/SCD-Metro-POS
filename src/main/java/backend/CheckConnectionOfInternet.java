@@ -257,8 +257,9 @@ public class CheckConnectionOfInternet {
 
                     if (isConnected && !wasInternetAvailable) {
                         System.out.println("Internet restored! Reinitializing database connection...");
-                        if(flag.get()) {
+                        if(flag.get()&&hasPendingData) {
                             showRestoringDataPanel();
+                            processPendingData();
                         }
                         initializeConnection();
 
@@ -267,7 +268,7 @@ public class CheckConnectionOfInternet {
 
                             if (hasPendingData) {
 
-                                processPendingData();
+
                             }
                         } else {
                             System.out.println("Failed to re-establish database connection.");
