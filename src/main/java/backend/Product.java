@@ -1,23 +1,25 @@
+// File: backend/Product.java
 package backend;
 
 public class Product {
     private String branchCode;
     private String productName;
-    private String productPrice;
+    private String originalPrice;
+    private String salesPrice;
     private String productDescription;
     private String quantity;
     private String vendorId;
 
-
-    public Product(String branchCode, String productName, String productPrice, String productDescription, String quantity, String vendorId) {
+    public Product(String branchCode, String productName, String originalPrice, String salesPrice,
+                   String productDescription, String quantity, String vendorId) {
         this.branchCode = branchCode;
         this.productName = productName;
-        this.productPrice = productPrice;
+        this.originalPrice = originalPrice;
+        this.salesPrice = salesPrice;
         this.productDescription = productDescription;
         this.quantity = quantity;
         this.vendorId = vendorId;
     }
-
 
     public String getBranchCode() {
         return branchCode;
@@ -35,12 +37,20 @@ public class Product {
         this.productName = productName;
     }
 
-    public String getProductPrice() {
-        return productPrice;
+    public String getOriginalPrice() {
+        return originalPrice;
     }
 
-    public void setProductPrice(String productPrice) {
-        this.productPrice = productPrice;
+    public void setOriginalPrice(String originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public String getSalesPrice() {
+        return salesPrice;
+    }
+
+    public void setSalesPrice(String salesPrice) {
+        this.salesPrice = salesPrice;
     }
 
     public String getProductDescription() {

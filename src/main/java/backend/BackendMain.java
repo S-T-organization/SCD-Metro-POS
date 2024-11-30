@@ -48,7 +48,7 @@ public class BackendMain {
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
 
-        dataEntryOperator.addVendor("Sharjeena", "54001230123", "0293924410", "LAHORE");
+//        dataEntryOperator.addVendor("Sharjeena", "54001230123", "0293924410", "LAHORE");
 
 
     }

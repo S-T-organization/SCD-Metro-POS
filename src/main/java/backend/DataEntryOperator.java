@@ -129,7 +129,6 @@ public class DataEntryOperator {
             return -1; // Error
         }
     }
-    // Create Vendors table if it does not exist
     private void createVendorsTableIfNotExists() {
         String createTableQuery = """
             CREATE TABLE IF NOT EXISTS Vendors (
@@ -148,16 +147,15 @@ public class DataEntryOperator {
             System.out.println("Error creating Vendors table: " + e.getMessage());
         }
     }
-
-
     public int addProducts(List<Product> products) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             System.out.println("Internet unavailable. Saving product operations to file.");
             for (Product product : products) {
-                String columns = "branchCode,productName,productPrice,productDescription,quantity,dateAdded,vendorId";
+                String columns = "branchCode,productName,originalPrice,salesPrice,productDescription,quantity,dateAdded,vendorId";
                 String values = String.join(",", product.getBranchCode(), product.getProductName(),
-                        product.getProductPrice(), product.getProductDescription(),
-                        product.getQuantity(), LocalDate.now().toString(), product.getVendorId());
+                        product.getOriginalPrice(), product.getSalesPrice(),
+                        product.getProductDescription(), product.getQuantity(),
+                        LocalDate.now().toString(), product.getVendorId());
                 CheckConnectionOfInternet.saveOperationToFile("Products", columns, values);
             }
             CheckConnectionOfInternet.writeTempFile(true);
@@ -215,15 +213,17 @@ public class DataEntryOperator {
 
                         String updateQuery = """
                             UPDATE Products 
-                            SET quantity = ?, productPrice = ?, productDescription = ?, dateAdded = ?
+                            SET quantity = ?, originalPrice = ?, salesPrice = ?, 
+                                productDescription = ?, dateAdded = ?
                             WHERE productId = ?
                         """;
                         try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
-                            updateStmt.setString(1, String.valueOf(newQuantity)); // Update quantity as String
-                            updateStmt.setString(2, product.getProductPrice()); // Update price
-                            updateStmt.setString(3, product.getProductDescription()); // Update description
-                            updateStmt.setString(4, LocalDate.now().toString()); // Update date as String
-                            updateStmt.setString(5, productId); // Use productId
+                            updateStmt.setString(1, String.valueOf(newQuantity));
+                            updateStmt.setString(2, product.getOriginalPrice());
+                            updateStmt.setString(3, product.getSalesPrice());
+                            updateStmt.setString(4, product.getProductDescription());
+                            updateStmt.setString(5, LocalDate.now().toString());
+                            updateStmt.setString(6, productId);
 
                             int rowsUpdated = updateStmt.executeUpdate();
                             if (rowsUpdated > 0) {
@@ -237,17 +237,19 @@ public class DataEntryOperator {
                     } else {
                         // Product does not exist, insert a new record
                         String insertQuery = """
-                            INSERT INTO Products (branchCode, productName, productPrice, productDescription, quantity, dateAdded, vendorId)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO Products (branchCode, productName, originalPrice, salesPrice, 
+                                                  productDescription, quantity, dateAdded, vendorId)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                         """;
                         try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
-                            insertStmt.setString(1, product.getBranchCode()); // Branch code as String
-                            insertStmt.setString(2, product.getProductName()); // Product name as String
-                            insertStmt.setString(3, product.getProductPrice()); // Product price as String
-                            insertStmt.setString(4, product.getProductDescription()); // Description as String
-                            insertStmt.setString(5, product.getQuantity()); // Quantity as String
-                            insertStmt.setString(6, LocalDate.now().toString()); // Date as String
-                            insertStmt.setString(7, product.getVendorId()); // Vendor ID as foreign key
+                            insertStmt.setString(1, product.getBranchCode());
+                            insertStmt.setString(2, product.getProductName());
+                            insertStmt.setString(3, product.getOriginalPrice());
+                            insertStmt.setString(4, product.getSalesPrice());
+                            insertStmt.setString(5, product.getProductDescription());
+                            insertStmt.setString(6, product.getQuantity());
+                            insertStmt.setString(7, LocalDate.now().toString());
+                            insertStmt.setString(8, product.getVendorId());
 
                             int rowsInserted = insertStmt.executeUpdate();
                             if (rowsInserted > 0) {
@@ -267,32 +269,30 @@ public class DataEntryOperator {
         }
     }
 
-
     private void createProductsTableIfNotExists() {
         String createTableQuery = """
             CREATE TABLE IF NOT EXISTS Products (
                 productId INT AUTO_INCREMENT PRIMARY KEY,
                 branchCode VARCHAR(50) NOT NULL,
                 productName VARCHAR(100) NOT NULL,
-                productPrice VARCHAR(50) NOT NULL, -- Stored as String
+                originalPrice VARCHAR(50) NOT NULL,
+                salesPrice VARCHAR(50) NOT NULL,
                 productDescription TEXT,
-                quantity VARCHAR(50) NOT NULL, -- Stored as String
-                dateAdded VARCHAR(50) NOT NULL, -- Stored as String
+                quantity VARCHAR(50) NOT NULL,
+                dateAdded VARCHAR(50) NOT NULL,
                 vendorId INT NOT NULL,
                 FOREIGN KEY (vendorId) REFERENCES Vendors(vendorId),
-                UNIQUE(branchCode, productName) -- Ensure unique product per branch
+                UNIQUE(branchCode, productName)
             )
         """;
 
-        try (PreparedStatement stmt = conn.prepareStatement(createTableQuery)) {
-            stmt.execute();
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(createTableQuery);
             System.out.println("Products table verified/created successfully.");
         } catch (Exception e) {
             System.out.println("Error creating Products table: " + e.getMessage());
         }
     }
-
-
     public String[] getAllVendors() {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             System.out.println("Internet unavailable. Cannot fetch vendors.");
@@ -314,7 +314,6 @@ public class DataEntryOperator {
 
         return vendorNames.toArray(new String[0]); // Convert ArrayList to String array
     }
-
     public String getVendorIdByVendorName(String vendorName) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             System.out.println("Internet unavailable. Cannot fetch vendor ID.");
@@ -339,5 +338,4 @@ public class DataEntryOperator {
             return null; // Error occurred
         }
     }
-
 }

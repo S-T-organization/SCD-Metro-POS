@@ -15,6 +15,7 @@ public class Cashier
 
     public Cashier() {
         conn = DBConnection.getConnection();
+
     }
 
     // Login function for cashier
@@ -53,7 +54,6 @@ public class Cashier
         }
         return 0;
     }
-
     // Get branch names
     public String[] getAllBranchNames() {
         ArrayList<String> branchNames = new ArrayList<>();
@@ -74,7 +74,6 @@ public class Cashier
 
         return branchNames.toArray(new String[0]); // Convert ArrayList to String array
     }
-
     // Get branch code by branch name
     public String getBranchCodeByName(String branchName) {
         String branchCode = null;
@@ -95,7 +94,6 @@ public class Cashier
 
         return branchCode;
     }
-
     @Override
     public String toString() {
         return "Cashier{" +
@@ -107,4 +105,5 @@ public class Cashier
                 ", salary='" + salary + '\'' +
                 '}';
     }
+
 }
