@@ -180,18 +180,31 @@ public class CashierPage extends JFrame {
     private void showAddProductDialog() {
         JDialog dialog = new JDialog(this, "Add Product", true);
         dialog.setLayout(new GridBagLayout());
+        dialog.getContentPane().setBackground(METRO_YELLOW);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JTextField productIdField = new JTextField(15);
-        JButton confirmButton = new JButton("Add");
-
+        JLabel titleLabel = new JLabel("Add New Product");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setForeground(METRO_BLUE);
         gbc.gridx = 0; gbc.gridy = 0;
-        dialog.add(new JLabel("Product ID:"), gbc);
-        gbc.gridx = 1;
-        dialog.add(productIdField, gbc);
+        gbc.gridwidth = 2;
+        dialog.add(titleLabel, gbc);
+
+        JLabel productIdLabel = new JLabel("Product ID:");
+        productIdLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        productIdLabel.setForeground(METRO_BLUE);
         gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        dialog.add(productIdLabel, gbc);
+
+        JTextField productIdField = createStyledTextField();
+        gbc.gridx = 1; gbc.gridy = 1;
+        dialog.add(productIdField, gbc);
+
+        JButton confirmButton = createStyledButton("Add Product");
+        gbc.gridx = 0; gbc.gridy = 2;
         gbc.gridwidth = 2;
         dialog.add(confirmButton, gbc);
 
@@ -213,7 +226,7 @@ public class CashierPage extends JFrame {
             }
         });
 
-        dialog.pack();
+        dialog.setSize(400, 250);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
@@ -310,4 +323,16 @@ public class CashierPage extends JFrame {
         exitButton.addActionListener(e -> System.exit(0));
         return exitButton;
     }
+
+    private JTextField createStyledTextField() {
+        JTextField textField = new JTextField();
+        textField.setFont(new Font("Arial", Font.PLAIN, 16));
+        textField.setForeground(METRO_BLUE);
+        textField.setBackground(Color.WHITE);
+        textField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(METRO_BLUE, 2),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        return textField;
+    }
 }
+
