@@ -76,4 +76,10 @@ public class Product {
     public void setVendorId(String vendorId) {
         this.vendorId = vendorId;
     }
+    @Override
+    public String toString() {
+        return "Product [branchCode=" + branchCode + ", productName=" + productName + ", originalPrice=" + originalPrice
+                + ", salesPrice=" + salesPrice + ", productDescription=" + productDescription + ", quantity=" + quantity
+                + ", vendorId=" + vendorId + "]";
+    }
 }

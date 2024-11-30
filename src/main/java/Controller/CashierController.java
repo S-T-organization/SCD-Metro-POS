@@ -1,9 +1,11 @@
 package Controller;
 
 import backend.Cashier;
+import backend.Product;
 
-public class CashierController
-{
+import java.util.List;
+
+public class CashierController {
 
     private Cashier cashier;
 
@@ -24,5 +26,14 @@ public class CashierController
     // Get branch code by branch name
     public String getBranchCodeByName(String branchName) {
         return cashier.getBranchCodeByName(branchName);
+    }
+
+    public Product getProductById(String productId) {
+        return cashier.getProductById(productId);
+    }
+
+
+    public String removeProduct(List<String> namesAndQuantity) {
+        return cashier.removeProduct(namesAndQuantity);
     }
 }

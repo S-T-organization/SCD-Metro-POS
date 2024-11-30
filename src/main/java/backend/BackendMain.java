@@ -43,13 +43,18 @@ public class BackendMain {
 //         System.out.println(vendors[i]);
 //     }
 //        System.out.println(data.getVendorIdByVendorName("Adeel"));
-        DataEntryOperator dataEntryOperator = new DataEntryOperator();
-
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
+//        DataEntryOperator dataEntryOperator = new DataEntryOperator();
+//
+//        Scanner scanner = new Scanner(System.in);
+//        scanner.nextLine();
 
 //        dataEntryOperator.addVendor("Sharjeena", "54001230123", "0293924410", "LAHORE");
 
+        Cashier cashier = new Cashier();
 
+       ArrayList<String> list= new ArrayList<>();
+        list.add("SunsliK,"+"12");
+        list.add("t4,"+"123");
+        System.out.println( cashier.removeProduct(list));
     }
 }
