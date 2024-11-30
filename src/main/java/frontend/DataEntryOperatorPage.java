@@ -7,17 +7,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
-public class DataEntryOperatorPage extends JFrame {
-    private static final Color METRO_YELLOW = new Color(230, 190, 0);
-    private static final Color METRO_BLUE = new Color(0, 41, 84);
+public class DataEntryOperatorPage extends JFrame
+{
+    private static final Color METRO_YELLOW = new Color(255, 219, 0); // #FFDB00
+    private static final Color METRO_BLUE = new Color(0, 41, 79);     // #00294F
 
     private JComboBox<String> vendorComboBox;
     private JPanel productsPanel;
-    private DataEntryOperatorController controller;
+    private final DataEntryOperatorController controller;
+    private final List<Product> productList;
+    private JLabel noProductsLabel;
 
     public DataEntryOperatorPage(JFrame previousFrame) {
         controller = new DataEntryOperatorController();
+        productList = new ArrayList<>();
 
         setTitle("Metro Billing System - Data Entry Operator");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,17 +63,17 @@ public class DataEntryOperatorPage extends JFrame {
         GridBagConstraints leftGbc = new GridBagConstraints();
         leftGbc.gridx = 0;
         leftGbc.gridy = 0;
-        leftGbc.weightx = 0.3;
+        leftGbc.weightx = 0.25;
         leftGbc.weighty = 1.0;
         leftGbc.fill = GridBagConstraints.BOTH;
         leftGbc.insets = new Insets(40, 20, 20, 10);
         mainPanel.add(leftPanel, leftGbc);
 
-        JPanel rightPanel = createRightPanel();
+        JPanel rightPanel = createRightPanel(); // Ensure this is initialized correctly
         GridBagConstraints rightGbc = new GridBagConstraints();
         rightGbc.gridx = 1;
         rightGbc.gridy = 0;
-        rightGbc.weightx = 0.7;
+        rightGbc.weightx = 0.75;
         rightGbc.weighty = 1.0;
         rightGbc.fill = GridBagConstraints.BOTH;
         rightGbc.insets = new Insets(40, 10, 20, 20);
@@ -86,19 +91,19 @@ public class DataEntryOperatorPage extends JFrame {
         dropdownPanel.setOpaque(false);
 
         JLabel vendorLabel = new JLabel("Vendor Information");
-        vendorLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        vendorLabel.setFont(new Font("Arial", Font.BOLD, 18));
         vendorLabel.setForeground(METRO_BLUE);
 
         vendorComboBox = new JComboBox<>();
-        vendorComboBox.setPreferredSize(new Dimension(250, 30));
-        vendorComboBox.setFont(new Font("Arial", Font.PLAIN, 14));
+        vendorComboBox.setPreferredSize(new Dimension(250, 40));
+        vendorComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
         vendorComboBox.setBackground(Color.WHITE);
 
         dropdownPanel.add(vendorLabel, BorderLayout.NORTH);
         dropdownPanel.add(vendorComboBox, BorderLayout.CENTER);
 
         JButton addVendorButton = createStyledButton("Add New Vendor");
-        addVendorButton.setPreferredSize(new Dimension(250, 35));
+        addVendorButton.setPreferredSize(new Dimension(250, 40));
         addVendorButton.addActionListener(e -> showAddVendorDialog());
 
         panel.add(dropdownPanel, BorderLayout.NORTH);
@@ -117,10 +122,16 @@ public class DataEntryOperatorPage extends JFrame {
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         panel.add(titleLabel, BorderLayout.NORTH);
 
-        // Products panel with vertical layout
+        // Initialize productsPanel here to avoid NullPointerException
         productsPanel = new JPanel();
         productsPanel.setLayout(new BoxLayout(productsPanel, BoxLayout.Y_AXIS));
         productsPanel.setOpaque(false);
+
+        noProductsLabel = new JLabel("NO PRODUCT ADDED");
+        noProductsLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        noProductsLabel.setForeground(METRO_BLUE);
+        noProductsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        productsPanel.add(noProductsLabel);
 
         JScrollPane scrollPane = new JScrollPane(productsPanel);
         scrollPane.setOpaque(false);
@@ -133,11 +144,11 @@ public class DataEntryOperatorPage extends JFrame {
         bottomPanel.setOpaque(false);
 
         JButton addToDatabaseButton = createStyledButton("Add Products");
-        addToDatabaseButton.setPreferredSize(new Dimension(200, 35));
+        addToDatabaseButton.setPreferredSize(new Dimension(200, 40));
         addToDatabaseButton.addActionListener(e -> addProductsToDatabase());
 
         JButton plusButton = createCircularButton("+");
-        plusButton.setPreferredSize(new Dimension(35, 35));
+        plusButton.setPreferredSize(new Dimension(40, 40));
         plusButton.addActionListener(e -> showAddProductDialog());
 
         bottomPanel.add(addToDatabaseButton);
@@ -149,56 +160,195 @@ public class DataEntryOperatorPage extends JFrame {
         return panel;
     }
 
-    private void addProductsToDatabase() {
-        ArrayList<Product> products = new ArrayList<>();
+    private void showAddProductDialog() {
+        JDialog dialog = new JDialog(this, "Add Product", true);
+        dialog.setLayout(new GridBagLayout());
+        dialog.setMinimumSize(new Dimension(600, 600)); // Adjusted size to accommodate new fields
+        dialog.getContentPane().setBackground(METRO_YELLOW);
 
-        for (Component component : productsPanel.getComponents()) {
-            if (component instanceof JPanel) {
-                JPanel productCard = (JPanel) component;
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBackground(METRO_YELLOW);
 
-                // Initialize variables to extract product information
-                String branchCode = null, productName = null, price = null, quantity = null, description = null;
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 20, 10, 20);
 
-                for (Component cardComponent : productCard.getComponents()) {
-                    if (cardComponent instanceof JLabel) {
-                        JLabel label = (JLabel) cardComponent;
-                        String text = label.getText();
+        // Branch selection
+        JComboBox<String> branchNameComboBox = new JComboBox<>();
+        branchNameComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
+        branchNameComboBox.setPreferredSize(new Dimension(400, 40));
 
-                        if (text.startsWith("Branch Code: ")) {
-                            branchCode = text.replace("Branch Code: ", "");
-                        } else if (text.startsWith("Name: ")) {
-                            productName = text.replace("Name: ", "");
-                        } else if (text.startsWith("Price: $")) {
-                            price = text.replace("Price: $", "");
-                        } else if (text.startsWith("Quantity: ")) {
-                            quantity = text.replace("Quantity: ", "");
-                        } else if (text.startsWith("Description: ")) {
-                            description = text.replace("Description: ", "");
-                        }
-                    }
-                }
-
-                if (branchCode != null && productName != null && price != null && quantity != null && description != null) {
-                    String vendorId = controller.getVendorIdByVendorName((String) vendorComboBox.getSelectedItem());
-                    if (vendorId == null) {
-                        Notification.showErrorMessage(this, "Vendor ID could not be determined. Ensure a valid vendor is selected.");
-                        return;
-                    }
-
-                    products.add(new Product(branchCode, productName, price, description, quantity, vendorId));
-                }
+        String[] branchNames = controller.getAllBranchNames();
+        if (branchNames != null) {
+            for (String branchName : branchNames) {
+                branchNameComboBox.addItem(branchName);
             }
         }
 
-        System.out.println("Products to be added: " + products); // Debugging output
+        // Input fields for product details
+        JTextField productNameField = createStyledTextField();
+        JTextField originalPriceField = createStyledTextField(); // Original price
+        JTextField salesPriceField = createStyledTextField(); // Sales price
+        JTextArea descriptionArea = createStyledTextArea();
+        JSpinner quantitySpinner = createStyledSpinner();
 
-        int result = controller.addProducts(products);
+        // Adding components to the panel
+        contentPanel.add(createStyledLabel("Branch Name:"), gbc);
+        contentPanel.add(branchNameComboBox, gbc);
+        contentPanel.add(createStyledLabel("Product Name:"), gbc);
+        contentPanel.add(productNameField, gbc);
+        contentPanel.add(createStyledLabel("Original Price:"), gbc); // Label for Original Price
+        contentPanel.add(originalPriceField, gbc);
+        contentPanel.add(createStyledLabel("Sales Price:"), gbc); // Label for Sales Price
+        contentPanel.add(salesPriceField, gbc);
+        contentPanel.add(createStyledLabel("Product Description:"), gbc);
+        contentPanel.add(new JScrollPane(descriptionArea), gbc);
+        contentPanel.add(createStyledLabel("Quantity:"), gbc);
+        contentPanel.add(quantitySpinner, gbc);
+
+        // Save Button
+        JButton saveButton = createStyledButton("Save");
+        saveButton.setPreferredSize(new Dimension(200, 50));
+        saveButton.addActionListener(e -> {
+            String selectedBranchName = (String) branchNameComboBox.getSelectedItem();
+            String branchCode = controller.getBranchCodeByName(selectedBranchName);
+
+            if (branchCode == null || branchCode.isEmpty()) {
+                Notification.showErrorMessage(this, "Invalid branch selection. Please select a valid branch.");
+                return;
+            }
+
+            String vendorId = controller.getVendorIdByVendorName((String) vendorComboBox.getSelectedItem());
+            if (vendorId != null) {
+                // Create a product object with new fields
+                Product product = new Product(
+                        branchCode,
+                        productNameField.getText(),
+                        originalPriceField.getText(),
+                        salesPriceField.getText(), // Include sales price
+                        descriptionArea.getText(),
+                        String.valueOf(quantitySpinner.getValue()),
+                        vendorId
+                );
+
+                // Add product to the global product list and panel
+                productList.add(product);
+                addProductToPanel(product);
+                dialog.dispose();
+            } else {
+                Notification.showErrorMessage(this, "Please select a valid vendor.");
+            }
+        });
+
+        gbc.insets = new Insets(20, 20, 20, 20);
+        contentPanel.add(saveButton, gbc);
+
+        dialog.add(contentPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void addProductToPanel(Product product) {
+        // Remove noProductsLabel if visible
+        if (noProductsLabel != null && noProductsLabel.isVisible()) {
+            productsPanel.remove(noProductsLabel);
+            noProductsLabel.setVisible(false);
+        }
+
+        // Create a product card panel
+        JPanel productCard = new JPanel(new GridBagLayout());
+        productCard.setBackground(Color.WHITE);
+        productCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(METRO_BLUE, 2),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        productCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180)); // Adjusted height for additional fields
+        productCard.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // GridBagConstraints for layout management
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 10, 5, 10);
+
+        // Add product details to the card
+        JLabel nameLabel = new JLabel("Product: " + product.getProductName());
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        nameLabel.setForeground(METRO_BLUE);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.gridwidth = 2;
+        productCard.add(nameLabel, gbc);
+
+        JLabel originalPriceLabel = new JLabel(String.format("Original Price: Rs %.2f", Double.parseDouble(product.getOriginalPrice())));
+        originalPriceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        productCard.add(originalPriceLabel, gbc);
+
+        JLabel salesPriceLabel = new JLabel(String.format("Sales Price: Rs %.2f", Double.parseDouble(product.getSalesPrice())));
+        salesPriceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridx = 1;
+        productCard.add(salesPriceLabel, gbc);
+
+        JLabel quantityLabel = new JLabel(String.format("Quantity: %s", product.getQuantity()));
+        quantityLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        productCard.add(quantityLabel, gbc);
+
+        JLabel branchLabel = new JLabel("Branch: " + product.getBranchCode());
+        branchLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridy = 3;
+        productCard.add(branchLabel, gbc);
+
+        JLabel vendorLabel = new JLabel("Vendor ID: " + product.getVendorId());
+        vendorLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridy = 4;
+        productCard.add(vendorLabel, gbc);
+
+        JLabel descriptionLabel = new JLabel("<html><body>Description: " + product.getProductDescription() + "</body></html>");
+        descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridy = 5;
+        productCard.add(descriptionLabel, gbc);
+
+        // Add the product card to the productsPanel
+        productsPanel.add(productCard);
+        productsPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Add spacing between cards
+        productsPanel.revalidate();
+        productsPanel.repaint();
+    }
+
+
+    private void addProductsToDatabase() {
+        if (productList.isEmpty()) {
+            Notification.showErrorMessage(this, "No products to add. Please add products first.");
+            return;
+        }
+
+        int result = controller.addProducts(new ArrayList<>(productList)); // Send the product list to the controller
         if (result == 1) {
             Notification.showMessage(this, "All products added to the database successfully!");
+
+            // Clear the products panel
             productsPanel.removeAll();
             productsPanel.revalidate();
             productsPanel.repaint();
-        } else {
+
+            // Clear the global product list
+            productList.clear();
+
+            // Add back the noProductsLabel
+            noProductsLabel.setVisible(true);
+            productsPanel.add(noProductsLabel);
+            productsPanel.revalidate();
+            productsPanel.repaint();
+        }
+        else
+        {
             Notification.showErrorMessage(this, "Failed to add products to the database.");
         }
     }
@@ -231,35 +381,40 @@ public class DataEntryOperatorPage extends JFrame {
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setPreferredSize(new Dimension(35, 35)); // Set size for circular shape
+        button.setPreferredSize(new Dimension(40, 40));
         return button;
     }
-
 
     private void showAddVendorDialog() {
         JDialog dialog = new JDialog(this, "Add New Vendor", true);
         dialog.setLayout(new GridBagLayout());
+        dialog.setMinimumSize(new Dimension(600, 500));
+        dialog.getContentPane().setBackground(METRO_YELLOW);
+
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBackground(METRO_YELLOW);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 10, 5, 10);
+        gbc.insets = new Insets(10, 20, 10, 20);
 
         JTextField nameField = createStyledTextField();
         JTextField cnicField = createStyledTextField();
         JTextField phoneField = createStyledTextField();
         JTextField addressField = createStyledTextField();
 
-        dialog.add(createStyledLabel("Name:"), gbc);
-        dialog.add(nameField, gbc);
-        dialog.add(createStyledLabel("CNIC:"), gbc);
-        dialog.add(cnicField, gbc);
-        dialog.add(createStyledLabel("Phone Number:"), gbc);
-        dialog.add(phoneField, gbc);
-        dialog.add(createStyledLabel("Address:"), gbc);
-        dialog.add(addressField, gbc);
+        contentPanel.add(createStyledLabel("Name:"), gbc);
+        contentPanel.add(nameField, gbc);
+        contentPanel.add(createStyledLabel("CNIC:"), gbc);
+        contentPanel.add(cnicField, gbc);
+        contentPanel.add(createStyledLabel("Phone Number:"), gbc);
+        contentPanel.add(phoneField, gbc);
+        contentPanel.add(createStyledLabel("Address:"), gbc);
+        contentPanel.add(addressField, gbc);
 
         JButton saveButton = createStyledButton("Save");
+        saveButton.setPreferredSize(new Dimension(200, 50));
         saveButton.addActionListener(e -> {
             int result = controller.addVendor(
                     nameField.getText(),
@@ -278,99 +433,13 @@ public class DataEntryOperatorPage extends JFrame {
             dialog.dispose();
         });
 
-        gbc.insets = new Insets(15, 10, 10, 10);
-        dialog.add(saveButton, gbc);
+        gbc.insets = new Insets(20, 20, 20, 20);
+        contentPanel.add(saveButton, gbc);
 
+        dialog.add(contentPanel);
         dialog.pack();
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
-    }
-
-
-    private void showAddProductDialog() {
-        JDialog dialog = new JDialog(this, "Add Product", true);
-        dialog.setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 10, 5, 10);
-
-        JTextField productNameField = createStyledTextField();
-        JTextField priceField = createStyledTextField();
-        JTextField branchCodeField = createStyledTextField();
-        JTextArea descriptionArea = createStyledTextArea();
-        JSpinner quantitySpinner = createStyledSpinner();
-
-        dialog.add(createStyledLabel("Branch Code:"), gbc);
-        dialog.add(branchCodeField, gbc);
-        dialog.add(createStyledLabel("Product Name:"), gbc);
-        dialog.add(productNameField, gbc);
-        dialog.add(createStyledLabel("Product Price:"), gbc);
-        dialog.add(priceField, gbc);
-        dialog.add(createStyledLabel("Product Description:"), gbc);
-        dialog.add(new JScrollPane(descriptionArea), gbc);
-        dialog.add(createStyledLabel("Quantity:"), gbc);
-        dialog.add(quantitySpinner, gbc);
-
-        JButton saveButton = createStyledButton("Save");
-        saveButton.addActionListener(e -> {
-            // Add product info to the panel
-            addProductToPanel(
-                    branchCodeField.getText(),
-                    productNameField.getText(),
-                    priceField.getText(),
-                    descriptionArea.getText(),
-                    (Integer) quantitySpinner.getValue()
-            );
-            dialog.dispose();
-        });
-
-        gbc.insets = new Insets(15, 10, 10, 10);
-        dialog.add(saveButton, gbc);
-
-        dialog.pack();
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-    }
-
-    private void addProductToPanel(String branchCode, String productName, String price, String description, int quantity) {
-        JPanel productCard = new JPanel(new GridBagLayout());
-        productCard.setBorder(BorderFactory.createLineBorder(METRO_BLUE, 1));
-        productCard.setBackground(Color.WHITE);
-        productCard.setPreferredSize(new Dimension(400, 120));
-        productCard.setMaximumSize(new Dimension(400, 120));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 10, 5, 10);
-
-        JLabel nameLabel = new JLabel("Name: " + productName);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        JLabel priceLabel = new JLabel("Price: $" + price);
-        JLabel quantityLabel = new JLabel("Quantity: " + quantity);
-        JLabel branchLabel = new JLabel("Branch Code: " + branchCode);
-        JLabel descriptionLabel = new JLabel("<html><body>Description: " + description + "</body></html>");
-
-        productCard.add(nameLabel, gbc);
-        productCard.add(priceLabel, gbc);
-        productCard.add(quantityLabel, gbc);
-        productCard.add(branchLabel, gbc);
-        productCard.add(descriptionLabel, gbc);
-
-        // Add the card to the productsPanel
-        productsPanel.add(productCard);
-
-        // Add a spacer for separation between cards
-        JPanel spacer = new JPanel();
-        spacer.setOpaque(false);
-        spacer.setPreferredSize(new Dimension(0, 10));
-        productsPanel.add(spacer);
-
-        // Refresh the panel to reflect changes
-        productsPanel.revalidate();
-        productsPanel.repaint();
     }
 
     private void loadVendors() {
@@ -381,10 +450,6 @@ public class DataEntryOperatorPage extends JFrame {
                 vendorComboBox.addItem(vendor);
             }
         }
-    }
-
-    private void refreshProductsPanel() {
-        // Refresh product panel logic
     }
 
     private JButton createStyledButton(String text) {
@@ -398,25 +463,32 @@ public class DataEntryOperatorPage extends JFrame {
 
     private JTextField createStyledTextField() {
         JTextField field = new JTextField();
-        field.setFont(new Font("Arial", Font.PLAIN, 14));
+        field.setFont(new Font("Arial", Font.PLAIN, 16));
+        field.setPreferredSize(new Dimension(400, 40));
+        field.setBorder(BorderFactory.createLineBorder(METRO_BLUE, 1));
         return field;
     }
 
     private JTextArea createStyledTextArea() {
         JTextArea area = new JTextArea(4, 20);
-        area.setFont(new Font("Arial", Font.PLAIN, 14));
+        area.setFont(new Font("Arial", Font.PLAIN, 16));
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
+        area.setBorder(BorderFactory.createLineBorder(METRO_BLUE, 1));
         return area;
     }
 
     private JSpinner createStyledSpinner() {
-        return new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
+        JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
+        spinner.setFont(new Font("Arial", Font.PLAIN, 16));
+        spinner.setPreferredSize(new Dimension(400, 40));
+        return spinner;
     }
 
     private JLabel createStyledLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("Arial", Font.BOLD, 14));
+        label.setFont(new Font("Arial", Font.BOLD, 16));
+        label.setForeground(METRO_BLUE);
         return label;
     }
 }
