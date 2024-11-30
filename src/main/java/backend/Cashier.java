@@ -1,6 +1,8 @@
 package backend;
 
+import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,32 +142,39 @@ public class Cashier
             return null;
         }
     }
-    public String removeProduct(List<String> namesAndQuantity) {
+    public String removeProduct(List<String> namesAndQuantities, String branchCode) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             System.out.println("Internet unavailable. Cannot perform operation.");
             return "false,Internet unavailable";
         }
 
+        createSalesTableIfNotExists(); // Ensure the Sales table exists
         StringBuilder result = new StringBuilder("true");
 
         try {
             conn.setAutoCommit(false); // Start transaction
 
-            for (String item : namesAndQuantity) {
+            for (String item : namesAndQuantities) {
                 // Split the productName and quantity from the input string
                 String[] parts = item.split(",");
                 String productName = parts[0].trim();
                 int quantityNeeded = Integer.parseInt(parts[1].trim());
 
-                // Fetch the product's current quantity from the database
-                String query = "SELECT productId, quantity FROM Products WHERE productName = ?";
+                // Fetch the product's current details from the database
+                String query = """
+                SELECT productId, quantity, originalPrice, salesPrice 
+                FROM Products WHERE productName = ? AND branchCode = ?
+            """;
                 try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                     pstmt.setString(1, productName);
+                    pstmt.setString(2, branchCode);
 
                     try (ResultSet rs = pstmt.executeQuery()) {
                         if (rs.next()) {
                             int productId = rs.getInt("productId");
                             int currentQuantity = Integer.parseInt(rs.getString("quantity"));
+                            String originalPrice = rs.getString("originalPrice");
+                            String salesPrice = rs.getString("salesPrice");
 
                             if (currentQuantity >= quantityNeeded) {
                                 // Reduce the quantity or remove the product if quantity becomes zero
@@ -186,6 +195,22 @@ public class Cashier
                                         deleteStmt.setInt(1, productId);
                                         deleteStmt.executeUpdate();
                                     }
+                                }
+
+                                // Insert record into the Sales table
+                                String insertSalesQuery = """
+                                INSERT INTO Sales (branch_code, product_name, product_original_price, product_sales_price, products_sold, total_sales, sale_date)
+                                VALUES (?, ?, ?, ?, ?, ?, ?)
+                            """;
+                                try (PreparedStatement insertSalesStmt = conn.prepareStatement(insertSalesQuery)) {
+                                    insertSalesStmt.setString(1, branchCode); // branch_code
+                                    insertSalesStmt.setString(2, productName); // product_name
+                                    insertSalesStmt.setString(3, originalPrice); // product_original_price
+                                    insertSalesStmt.setString(4, salesPrice); // product_sales_price
+                                    insertSalesStmt.setInt(5, quantityNeeded); // products_sold
+                                    insertSalesStmt.setBigDecimal(6, new BigDecimal(quantityNeeded).multiply(new BigDecimal(salesPrice))); // total_sales
+                                    insertSalesStmt.setDate(7, Date.valueOf(LocalDate.now())); // sale_date
+                                    insertSalesStmt.executeUpdate();
                                 }
                             } else {
                                 // Not enough quantity available, rollback and return false with product name
@@ -222,4 +247,31 @@ public class Cashier
 
         return result.toString(); // If all operations are successful, return "true"
     }
+
+
+
+    private void createSalesTableIfNotExists() {
+        String createTableQuery = """
+        CREATE TABLE IF NOT EXISTS Sales (
+            saleId INT AUTO_INCREMENT PRIMARY KEY,
+            branch_code VARCHAR(50) NOT NULL,
+            product_name VARCHAR(100) NOT NULL,
+            product_original_price VARCHAR(50) NOT NULL,
+            product_sales_price VARCHAR(50) NOT NULL,
+            products_sold INT NOT NULL,
+            total_sales DECIMAL(10, 2) NOT NULL,
+            sale_date DATE NOT NULL,
+            FOREIGN KEY (branch_code) REFERENCES Branch(branchCode) ON DELETE CASCADE
+        )
+    """;
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(createTableQuery);
+            System.out.println("Sales table verified/created successfully.");
+        } catch (Exception e) {
+            System.out.println("Error creating Sales table: " + e.getMessage());
+        }
+    }
+
+
 }

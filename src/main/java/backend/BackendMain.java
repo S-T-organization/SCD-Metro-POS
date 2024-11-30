@@ -53,8 +53,8 @@ public class BackendMain {
         Cashier cashier = new Cashier();
 
        ArrayList<String> list= new ArrayList<>();
-        list.add("SunsliK,"+"12");
-        list.add("t4,"+"123");
-        System.out.println( cashier.removeProduct(list));
+        list.add("SunsliK,"+"3");
+
+        System.out.println( cashier.removeProduct(list,"101"));
     }
 }

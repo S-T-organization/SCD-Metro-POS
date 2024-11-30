@@ -33,7 +33,7 @@ public class CashierController {
     }
 
 
-    public String removeProduct(List<String> namesAndQuantity) {
-        return cashier.removeProduct(namesAndQuantity);
+    public String removeProduct(List<String> namesAndQuantity,String branchCode) {
+        return cashier.removeProduct(namesAndQuantity,branchCode);
     }
 }
