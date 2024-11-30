@@ -224,7 +224,7 @@ public class CashierLoginPage extends JFrame
         if (resultCode == 1) { // Success case
             Notification.showMessage(this, "Login Successful");
             dispose(); // Close the login page
-            SwingUtilities.invokeLater(() -> new CashierPage(this).setVisible(true)); // Navigate to dashboard
+            SwingUtilities.invokeLater(() -> new CashierPage(this,branchCode).setVisible(true)); // Navigate to dashboard
         } else { // Error case
             Notification.showErrorMessage(this, resultMessage);
         }

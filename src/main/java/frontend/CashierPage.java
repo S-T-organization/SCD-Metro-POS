@@ -1,13 +1,18 @@
 package frontend;
 
+import Controller.CashierController;
+import backend.Product;
+
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
-public class CashierPage extends JFrame {
+public class CashierPage extends JFrame
+{
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
 
@@ -15,8 +20,14 @@ public class CashierPage extends JFrame {
     private DefaultTableModel tableModel;
     private JLabel totalLabel;
     private double total = 0.0;
+    private final CashierController controller;
+    private final String branchCode;
 
-    public CashierPage(JFrame previousFrame) {
+    public CashierPage(JFrame previousFrame, String branchCode)
+    {
+        this.branchCode = branchCode;
+        controller = new CashierController(); // Initialize the controller
+
         setTitle("Metro Billing System - Cashier");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -83,7 +94,7 @@ public class CashierPage extends JFrame {
         bottomPanel.setOpaque(false);
 
         JButton removeButton = createStyledButton("Remove Product");
-        totalLabel = new JLabel("Total: $0.00");
+        totalLabel = new JLabel("Total: Rs 0.00");
         totalLabel.setFont(new Font("Arial", Font.BOLD, 24));
         totalLabel.setForeground(METRO_BLUE);
 
@@ -100,10 +111,10 @@ public class CashierPage extends JFrame {
         // Add components to content panel
         contentPanel.add(centerPanel, BorderLayout.CENTER);
 
-        // Add button action
+        // Add product action
         addButton.addActionListener(e -> showAddProductDialog());
 
-        // Remove button action
+        // Remove product action
         removeButton.addActionListener(e -> {
             int selectedRow = productTable.getSelectedRow();
             if (selectedRow != -1) {
@@ -117,18 +128,11 @@ public class CashierPage extends JFrame {
             }
         });
 
-        // Generate Bill button action
-        generateBillButton.addActionListener(e -> {
-            // TODO: Implement bill generation functionality
-            // This would typically involve:
-            // 1. Creating a bill with the current items
-            // 2. Saving to database
-            // 3. Printing or displaying bill
-        });
+        // Generate Bill action
+        generateBillButton.addActionListener(e -> generateBill());
     }
 
     private void createTable() {
-        // Create table model with non-editable cells except quantity
         tableModel = new DefaultTableModel(
                 new Object[][] {},
                 new String[] {"Product Name", "Price", "Quantity"}
@@ -140,11 +144,7 @@ public class CashierPage extends JFrame {
 
             @Override
             public Class<?> getColumnClass(int column) {
-                switch (column) {
-                    case 1: return Double.class;
-                    case 2: return Integer.class;
-                    default: return String.class;
-                }
+                return column == 1 ? Double.class : column == 2 ? Integer.class : String.class;
             }
         };
 
@@ -155,24 +155,9 @@ public class CashierPage extends JFrame {
         productTable.setSelectionBackground(METRO_BLUE);
         productTable.setSelectionForeground(Color.WHITE);
 
-        // Add quantity change listener
         tableModel.addTableModelListener(e -> {
             if (e.getType() == TableModelEvent.UPDATE && e.getColumn() == 2) {
                 updateTotal();
-            }
-        });
-
-        // Custom renderer for alternate row colors
-        productTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                                                           boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value,
-                        isSelected, hasFocus, row, column);
-                if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(240, 240, 240));
-                }
-                return c;
             }
         });
     }
@@ -185,53 +170,86 @@ public class CashierPage extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel titleLabel = new JLabel("Add New Product");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setForeground(METRO_BLUE);
-        gbc.gridx = 0; gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        dialog.add(titleLabel, gbc);
-
         JLabel productIdLabel = new JLabel("Product ID:");
         productIdLabel.setFont(new Font("Arial", Font.BOLD, 16));
         productIdLabel.setForeground(METRO_BLUE);
-        gbc.gridx = 0; gbc.gridy = 1;
-        gbc.gridwidth = 1;
+        gbc.gridx = 0; gbc.gridy = 0;
         dialog.add(productIdLabel, gbc);
 
         JTextField productIdField = createStyledTextField();
-        gbc.gridx = 1; gbc.gridy = 1;
+        gbc.gridx = 1; gbc.gridy = 0;
         dialog.add(productIdField, gbc);
 
-        JButton confirmButton = createStyledButton("Add Product");
-        gbc.gridx = 0; gbc.gridy = 2;
+        JButton confirmButton = createStyledButton("Add");
+        gbc.gridx = 0; gbc.gridy = 1;
         gbc.gridwidth = 2;
         dialog.add(confirmButton, gbc);
 
         confirmButton.addActionListener(e -> {
             String productId = productIdField.getText();
             if (!productId.isEmpty()) {
-                // TODO: In a real application, fetch product details from database
-                // For demonstration, adding dummy data
-                Vector<Object> row = new Vector<>();
-                row.add("Product " + productId);
-                row.add(99.99); // dummy price
-                row.add(1); // default quantity
-                tableModel.addRow(row);
+                Product product = controller.getProductById(productId);
+                if (product != null) {
+                    Vector<Object> row = new Vector<>();
+                    row.add(product.getProductName());
+                    row.add(Double.parseDouble(product.getSalesPrice()));
+                    row.add(1); // Default quantity
+                    tableModel.addRow(row);
 
-                // Update total
-                updateTotal();
-
+                    updateTotal();
+                    Notification.showMessage(this, "Product added successfully!");
+                } else {
+                    Notification.showErrorMessage(this, "Product not found!");
+                }
                 dialog.dispose();
             }
         });
 
-        dialog.setSize(400, 250);
+        dialog.pack();
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
 
-    private void updateTotal() {
+    private void generateBill() {
+        List<String> productQuantities = new ArrayList<>();
+        List<String[]> billDetails = new ArrayList<>();
+
+        // Collect product details from the table
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            String productName = (String) tableModel.getValueAt(i, 0);
+            double price = (double) tableModel.getValueAt(i, 1);
+            int quantity = (int) tableModel.getValueAt(i, 2);
+            productQuantities.add(productName + "," + quantity);
+            billDetails.add(new String[]{productName, String.valueOf(price), String.valueOf(quantity)});
+        }
+
+        // Call controller to remove products from database
+        String result = controller.removeProduct(productQuantities, branchCode);
+
+        if (result.startsWith("true")) {
+            Notification.showMessage(this, "Bill generated successfully!");
+
+            // Clear the table
+            updateTotal1();
+            tableModel.setRowCount(0);
+
+            // Open the Bill screen
+            SwingUtilities.invokeLater(() -> new BillScreen(this, billDetails, total).setVisible(true));
+
+
+        } else {
+            // Handle errors
+            String[] parts = result.split(",", 2);
+            if (parts[1].startsWith("Internet")) {
+                Notification.showErrorMessage(this, "Error: Internet not available");
+            } else {
+                Notification.showErrorMessage(this, "Error: " + parts[1] + " - Not Enough Stock");
+            }
+        }
+    }
+
+
+    public void updateTotal() {
         total = 0;
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             double price = (double) tableModel.getValueAt(i, 1);
@@ -241,8 +259,22 @@ public class CashierPage extends JFrame {
         updateTotalLabel();
     }
 
+    public void updateTotal1() {
+        total = 0;
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            double price = (double) tableModel.getValueAt(i, 1);
+            int quantity = (int) tableModel.getValueAt(i, 2);
+            total += price * quantity;
+        }
+        updateTotalLabel1();
+    }
+
+    private void updateTotalLabel1() {
+        totalLabel.setText(String.format("Total: Rs%.2f", 0.00));
+    }
+
     private void updateTotalLabel() {
-        totalLabel.setText(String.format("Total: $%.2f", total));
+        totalLabel.setText(String.format("Total: Rs%.2f", total));
     }
 
     private JButton createStyledButton(String text) {
