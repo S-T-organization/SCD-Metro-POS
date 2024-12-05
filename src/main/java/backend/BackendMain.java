@@ -53,6 +53,7 @@ public class BackendMain {
 
 //        dataEntryOperator.addVendor("Sharjeena", "54001230123", "0293924410", "LAHORE");
 
+
         ReportsController reportsController = new ReportsController();
 
 // Fetch weekly total sales for all branches
@@ -83,6 +84,7 @@ public class BackendMain {
         for (Map.Entry<String, Double> entry : allBranchProductPercentages.entrySet()) {
             System.out.printf("Product: %s, Percentage: %.2f%%%n", entry.getKey(), entry.getValue());
         }
+
 
 
     }

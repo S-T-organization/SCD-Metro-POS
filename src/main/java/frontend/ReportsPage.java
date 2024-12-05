@@ -1,5 +1,6 @@
 package frontend;
 
+import Controller.ReportsController;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -12,16 +13,22 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 public class ReportsPage extends JFrame {
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
 
-    private ChartPanel pieChartPanel;
-    private ChartPanel barChartPanel;
+    private final ReportsController reportsController;
+    private ChartPanel pieChartPanelProduct;
+    private ChartPanel pieChartPanelBranch;
+    private ChartPanel barChartPanelProduct;
+    private ChartPanel barChartPanelBranch;
     private JComboBox<String> timeFrameSelector;
 
     public ReportsPage(JFrame previousFrame) {
+        reportsController = new ReportsController();
+
         setTitle("Metro Billing System - Reports");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -33,6 +40,51 @@ public class ReportsPage extends JFrame {
         mainPanel.setBackground(METRO_YELLOW);
 
         // Header Panel
+        JPanel headerPanel = createHeaderPanel(previousFrame);
+
+        // Subtitle Panel
+        JPanel subtitlePanel = createSubtitlePanel();
+
+        // Time Frame Selector Panel
+        JPanel selectorPanel = createTimeFrameSelector();
+
+        // Charts Panel
+        JPanel chartsPanel = new JPanel();
+        chartsPanel.setLayout(new BoxLayout(chartsPanel, BoxLayout.Y_AXIS));
+        chartsPanel.setBackground(METRO_YELLOW);
+
+        // Initialize charts
+        pieChartPanelProduct = createPieChart("Sales Distribution by Product", true);
+        pieChartPanelBranch = createPieChart("Sales Distribution by Branch", false);
+        barChartPanelProduct = createBarChart("Sales Performance by Product", true);
+        barChartPanelBranch = createBarChart("Sales Performance by Branch", false);
+
+        // Add components to charts panel
+        chartsPanel.add(pieChartPanelProduct);
+        chartsPanel.add(Box.createVerticalStrut(20));
+        chartsPanel.add(pieChartPanelBranch);
+        chartsPanel.add(Box.createVerticalStrut(20));
+        chartsPanel.add(barChartPanelProduct);
+        chartsPanel.add(Box.createVerticalStrut(20));
+        chartsPanel.add(barChartPanelBranch);
+
+        // Add all components to main panel
+        mainPanel.add(headerPanel);
+        mainPanel.add(subtitlePanel);
+        mainPanel.add(selectorPanel);
+        mainPanel.add(chartsPanel);
+
+        // Create scroll pane for the entire content
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        setContentPane(scrollPane);
+    }
+
+    private JPanel createHeaderPanel(JFrame previousFrame) {
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(METRO_BLUE);
         headerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
@@ -63,7 +115,10 @@ public class ReportsPage extends JFrame {
         headerPanel.add(navPanel, BorderLayout.NORTH);
         headerPanel.add(metroLabel, BorderLayout.CENTER);
 
-        // Subtitle Panel
+        return headerPanel;
+    }
+
+    private JPanel createSubtitlePanel() {
         JPanel subtitlePanel = new JPanel();
         subtitlePanel.setBackground(METRO_YELLOW);
         subtitlePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
@@ -71,8 +126,10 @@ public class ReportsPage extends JFrame {
         subtitleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         subtitleLabel.setForeground(METRO_BLUE);
         subtitlePanel.add(subtitleLabel);
+        return subtitlePanel;
+    }
 
-        // Time Frame Selector Panel
+    private JPanel createTimeFrameSelector() {
         JPanel selectorPanel = new JPanel();
         selectorPanel.setBackground(METRO_YELLOW);
         selectorPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
@@ -92,48 +149,15 @@ public class ReportsPage extends JFrame {
 
         selectorPanel.add(selectorLabel);
         selectorPanel.add(timeFrameSelector);
-
-        // Charts Panel
-        JPanel chartsPanel = new JPanel();
-        chartsPanel.setLayout(new BoxLayout(chartsPanel, BoxLayout.Y_AXIS));
-        chartsPanel.setBackground(METRO_YELLOW);
-
-        // Initialize charts
-        pieChartPanel = createPieChart();
-        pieChartPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        pieChartPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        barChartPanel = createBarChart();
-        barChartPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        barChartPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Add components to charts panel
-        chartsPanel.add(pieChartPanel);
-        chartsPanel.add(Box.createVerticalStrut(20));
-        chartsPanel.add(barChartPanel);
-
-        // Add all components to main panel
-        mainPanel.add(headerPanel);
-        mainPanel.add(subtitlePanel);
-        mainPanel.add(selectorPanel);
-        mainPanel.add(chartsPanel);
-
-        // Create scroll pane for the entire content
-        JScrollPane scrollPane = new JScrollPane(mainPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-
-        setContentPane(scrollPane);
+        return selectorPanel;
     }
 
-    private ChartPanel createPieChart() {
+    private ChartPanel createPieChart(String title, boolean isProduct) {
         DefaultPieDataset dataset = new DefaultPieDataset();
-        updatePieChartData(dataset);
+        updatePieChartData(dataset, isProduct);
 
         JFreeChart chart = ChartFactory.createPieChart(
-                "Sales Distribution by Product",
+                title,
                 dataset,
                 true,
                 true,
@@ -148,14 +172,14 @@ public class ReportsPage extends JFrame {
         return chartPanel;
     }
 
-    private ChartPanel createBarChart() {
+    private ChartPanel createBarChart(String title, boolean isProduct) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        updateBarChartData(dataset);
+        updateBarChartData(dataset, isProduct);
 
         JFreeChart chart = ChartFactory.createBarChart(
-                "Sales Performance by Product",
-                "Product",
-                "Total Sales (Rs)",
+                title,
+                isProduct ? "Product" : "Branch", // X-axis label: Product or Branch
+                "Total Sales (Rs)",               // Y-axis label: Total Sales in Rs
                 dataset
         );
 
@@ -168,6 +192,38 @@ public class ReportsPage extends JFrame {
         chartPanel.setPreferredSize(new Dimension(800, 500));
 
         return chartPanel;
+    }
+
+
+    private void updatePieChartData(DefaultPieDataset dataset, boolean isProduct) {
+        String timeFrame = (String) timeFrameSelector.getSelectedItem();
+        Map<String, Double> data;
+
+        if (isProduct) {
+            // Fetch sales by product
+            data = reportsController.getProductSalesPercentages(timeFrame, null);
+        } else {
+            // Fetch sales by branch with branch names
+            data = reportsController.getBranchSalesPercentages(timeFrame);
+        }
+
+        data.forEach(dataset::setValue);
+    }
+
+    private void updateBarChartData(DefaultCategoryDataset dataset, boolean isProduct) {
+        String timeFrame = (String) timeFrameSelector.getSelectedItem();
+        Map<String, Double> data;
+
+        if (isProduct) {
+            // Fetch total sales for products
+            data = reportsController.getProductSalesData(timeFrame); // Update backend to include this method
+        } else {
+            // Fetch total sales for branches
+            data = reportsController.getBranchSalesData(timeFrame); // This method is already in ReportsController
+        }
+
+        // Populate the dataset with total sales data
+        data.forEach((key, value) -> dataset.addValue(value, "Sales", key));
     }
 
     private void customizeChart(JFreeChart chart) {
@@ -195,65 +251,22 @@ public class ReportsPage extends JFrame {
     private void updateCharts() {
         String timeFrame = (String) timeFrameSelector.getSelectedItem();
 
-        // Update Pie Chart
-        DefaultPieDataset pieDataset = new DefaultPieDataset();
-        updatePieChartData(pieDataset);
-        ((PiePlot) pieChartPanel.getChart().getPlot()).setDataset(pieDataset);
+        // Update Pie Charts
+        DefaultPieDataset pieDatasetProduct = new DefaultPieDataset();
+        updatePieChartData(pieDatasetProduct, true);
+        ((PiePlot) pieChartPanelProduct.getChart().getPlot()).setDataset(pieDatasetProduct);
 
-        // Update Bar Chart
-        DefaultCategoryDataset barDataset = new DefaultCategoryDataset();
-        updateBarChartData(barDataset);
-        ((CategoryPlot) barChartPanel.getChart().getPlot()).setDataset(barDataset);
+        DefaultPieDataset pieDatasetBranch = new DefaultPieDataset();
+        updatePieChartData(pieDatasetBranch, false);
+        ((PiePlot) pieChartPanelBranch.getChart().getPlot()).setDataset(pieDatasetBranch);
+
+        // Update Bar Charts
+        DefaultCategoryDataset barDatasetProduct = new DefaultCategoryDataset();
+        updateBarChartData(barDatasetProduct, true);
+        ((CategoryPlot) barChartPanelProduct.getChart().getPlot()).setDataset(barDatasetProduct);
+
+        DefaultCategoryDataset barDatasetBranch = new DefaultCategoryDataset();
+        updateBarChartData(barDatasetBranch, false);
+        ((CategoryPlot) barChartPanelBranch.getChart().getPlot()).setDataset(barDatasetBranch);
     }
-
-    private void updatePieChartData(DefaultPieDataset dataset) {
-        String timeFrame = (String) timeFrameSelector.getSelectedItem();
-
-        switch (timeFrame) {
-            case "Weekly":
-                dataset.setValue("Sunsilk", 15);
-                dataset.setValue("Turkish Iphone", 25);
-                dataset.setValue("Sugar", 40);
-                dataset.setValue("Dalda Cooking Oil", 20);
-                break;
-            case "Monthly":
-                dataset.setValue("Sunsilk", 20);
-                dataset.setValue("Turkish Iphone", 30);
-                dataset.setValue("Sugar", 35);
-                dataset.setValue("Dalda Cooking Oil", 15);
-                break;
-            case "Annually":
-                dataset.setValue("Sunsilk", 25);
-                dataset.setValue("Turkish Iphone", 35);
-                dataset.setValue("Sugar", 25);
-                dataset.setValue("Dalda Cooking Oil", 15);
-                break;
-        }
-    }
-
-    private void updateBarChartData(DefaultCategoryDataset dataset) {
-        String timeFrame = (String) timeFrameSelector.getSelectedItem();
-
-        switch (timeFrame) {
-            case "Weekly":
-                dataset.addValue(1500.00, "Sales", "Sunsilk");
-                dataset.addValue(3500.00, "Sales", "Turkish Iphone");
-                dataset.addValue(8250.00, "Sales", "Sugar");
-                dataset.addValue(1000.00, "Sales", "Dalda Cooking Oil");
-                break;
-            case "Monthly":
-                dataset.addValue(6000.00, "Sales", "Sunsilk");
-                dataset.addValue(14000.00, "Sales", "Turkish Iphone");
-                dataset.addValue(33000.00, "Sales", "Sugar");
-                dataset.addValue(4000.00, "Sales", "Dalda Cooking Oil");
-                break;
-            case "Annually":
-                dataset.addValue(72000.00, "Sales", "Sunsilk");
-                dataset.addValue(168000.00, "Sales", "Turkish Iphone");
-                dataset.addValue(396000.00, "Sales", "Sugar");
-                dataset.addValue(48000.00, "Sales", "Dalda Cooking Oil");
-                break;
-        }
-    }
-
 }

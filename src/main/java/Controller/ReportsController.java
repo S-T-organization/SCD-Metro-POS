@@ -64,4 +64,17 @@ public class ReportsController {
     public Map<String, Double> getSalesByTimeAndBranch(String time, String branchId) {
         return percentageCalculator.calculateProductSalesPercentage(time, branchId);
     }
+
+    public Map<String, Double> getBranchSalesPercentages(String timeFrame) {
+        return reportsManager.getBranchSalesPercentages(timeFrame);
+    }
+
+    public Map<String, Double> getBranchSalesData(String timeFrame) {
+        return reportsManager.getBranchSalesData(timeFrame);
+    }
+
+    public Map<String, Double> getProductSalesData(String timeFrame) {
+        return reportsManager.getProductSalesData(timeFrame);
+    }
+
 }
