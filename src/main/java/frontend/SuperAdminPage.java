@@ -245,7 +245,9 @@ public class SuperAdminPage extends JFrame {
 
     private void showReportsDialog() {
         System.out.println("Reports dialog opened.");
-        Notification.showMessage(this, "Reports feature coming soon!");
+        ReportsPage reportsPage = new ReportsPage(this);
+        reportsPage.setVisible(true);
+        this.setVisible(false);
     }
 
     private JTextField createStyledTextField(String placeholder) {
