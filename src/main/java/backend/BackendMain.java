@@ -1,9 +1,12 @@
 package backend;
 
+import Controller.ReportsController;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class BackendMain {
@@ -50,11 +53,38 @@ public class BackendMain {
 
 //        dataEntryOperator.addVendor("Sharjeena", "54001230123", "0293924410", "LAHORE");
 
-        Cashier cashier = new Cashier();
+        ReportsController reportsController = new ReportsController();
 
-       ArrayList<String> list= new ArrayList<>();
-        list.add("SunsliK,"+"3");
+// Fetch weekly total sales for all branches
+        double totalWeeklySales = reportsController.getTotalSalesByTime("weekly");
+        System.out.println("---------- Weekly Sales Report ----------");
+        System.out.printf("Total Weekly Sales (All Branches): %.2f%n", totalWeeklySales);
 
-        System.out.println( cashier.removeProduct(list,"101"));
+// Fetch branch name by ID
+        String branchName = reportsController.GetBranchNameById("101");
+        if (branchName != null) {
+            // Fetch total sales for a specific branch (weekly)
+            double branchSales = reportsController.getTotalSalesByBranchAndTime("weekly", "101");
+            System.out.printf("%nTotal Weekly Sales for %s Branch: %.2f%n", branchName, branchSales);
+
+            // Fetch sales percentages for products in the branch
+            System.out.println("\nProduct Sales Percentages for " + branchName + " Branch:");
+            Map<String, Double> branchProductPercentages = reportsController.getProductSalesPercentages("weekly", "101");
+            for (Map.Entry<String, Double> entry : branchProductPercentages.entrySet()) {
+                System.out.printf("Product: %s, Percentage: %.2f%%%n", entry.getKey(), entry.getValue());
+            }
+        } else {
+            System.out.println("\nBranch ID '101' not found.");
+        }
+
+// Fetch sales percentages for all branches
+        System.out.println("\n---------- Product Sales Percentages (All Branches) ----------");
+        Map<String, Double> allBranchProductPercentages = reportsController.getProductSalesPercentages("weekly", null);
+        for (Map.Entry<String, Double> entry : allBranchProductPercentages.entrySet()) {
+            System.out.printf("Product: %s, Percentage: %.2f%%%n", entry.getKey(), entry.getValue());
+        }
+
+
     }
 }
+
