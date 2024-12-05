@@ -1,5 +1,6 @@
 package frontend;
 
+import BarcodeScanner.RealTimeBarcodeScanner;
 import Controller.CashierController;
 import backend.Product;
 
@@ -7,12 +8,16 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.*;
 import java.awt.*;
+import java.io.DataInputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
 public class CashierPage extends JFrame
-{
+{private static final String SERVER_ADDRESS = "localhost"; // Server Address
+    private static final int SERVER_PORT = 5050; // Server Port
+
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
 
@@ -22,9 +27,10 @@ public class CashierPage extends JFrame
     private double total = 0.0;
     private final CashierController controller;
     private final String branchCode;
-
+    private Thread clientThread;
     public CashierPage(JFrame previousFrame, String branchCode)
     {
+
         this.branchCode = branchCode;
         controller = new CashierController(); // Initialize the controller
 
@@ -78,6 +84,14 @@ public class CashierPage extends JFrame
 
         // Create table
         createTable();
+        startBarcodeScannerServer();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        startBarcodeScannerClient();
 
         // Create buttons panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -131,6 +145,31 @@ public class CashierPage extends JFrame
         // Generate Bill action
         generateBillButton.addActionListener(e -> generateBill());
     }
+    private void startBarcodeScannerServer() {
+        // Start the Barcode Scanner server in a separate thread
+        new Thread(() -> {
+            RealTimeBarcodeScanner scanner = new RealTimeBarcodeScanner();
+            scanner.startServer();
+        }).start();
+    }
+    private void startBarcodeScannerClient() {
+        // Start the client to listen for QR codes
+        new Thread(() -> {
+            try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT)) {
+                System.out.println("Connected to the Barcode Scanner server.");
+                DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+
+                while (true) {
+                    String qrCode = inputStream.readUTF(); // Receive QR code
+                    System.out.println("QR Code received: " + qrCode);
+
+                    SwingUtilities.invokeLater(() -> addProductToTable(qrCode));
+                }
+            } catch (Exception e) {
+                System.out.println("Error in client socket: " + e.getMessage());
+            }
+        }).start();
+    }
 
     private void createTable() {
         tableModel = new DefaultTableModel(
@@ -160,6 +199,25 @@ public class CashierPage extends JFrame
                 updateTotal();
             }
         });
+    }
+    private void startClientThread() {
+        clientThread = new Thread(() -> {
+            try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT)) {
+                System.out.println("Connected to the Scanner Server.");
+                DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+
+                while (true) {
+                    String qrCode = inputStream.readUTF(); // Receive QR code from server
+                    System.out.println("QR Code Received: " + qrCode);
+
+                    SwingUtilities.invokeLater(() -> addProductToTable(qrCode)); // Process on UI thread
+                }
+            } catch (Exception e) {
+                System.out.println("Error in Client: " + e.getMessage());
+            }
+        });
+        clientThread.setDaemon(true); // Ensure the thread stops with the application
+        clientThread.start();
     }
 
     private void showAddProductDialog() {
@@ -248,7 +306,19 @@ public class CashierPage extends JFrame
         }
     }
 
-
+    private void addProductToTable(String productId) {
+        Product product = controller.getProductById(productId);
+        if (product != null) {
+            Vector<Object> row = new Vector<>();
+            row.add(product.getProductName());
+            row.add(Double.parseDouble(product.getSalesPrice()));
+            row.add(1); // Default quantity
+            tableModel.addRow(row);
+            updateTotal();
+        } else {
+            JOptionPane.showMessageDialog(this, "Product not found!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     public void updateTotal() {
         total = 0;
         for (int i = 0; i < tableModel.getRowCount(); i++) {
@@ -366,5 +436,6 @@ public class CashierPage extends JFrame
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)));
         return textField;
     }
+
 }
 
