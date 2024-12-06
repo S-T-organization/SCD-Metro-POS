@@ -49,8 +49,8 @@ public class RealTimeBarcodeScanner {
                     String qrCode = detectQRCode(frame);
                     if (qrCode != null) {
                         System.out.println("QR Code Detected: " + qrCode);
-                        playBeepSound("C:\\Users\\user\\IdeaProjects\\Metro_POS\\src\\main\\resources\\beep_sound.wav");
                         Thread.sleep(500);
+                        playBeepSound("C:\\Users\\HP\\IdeaProjects\\SCD-Metro-POS\\src\\main\\resources\\beep_sound.wav");
                         outputStream.writeUTF(qrCode); // Send QR code to client
                         outputStream.flush();
                         Thread.sleep(1000); // Delay for next scan

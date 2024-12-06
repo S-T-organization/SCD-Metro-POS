@@ -52,9 +52,12 @@ public class BranchManagerPage extends JFrame {
         };
         setContentPane(contentPanel);
 
-        // Add exit and return buttons
+        // Add exit, return, and change password buttons
         ExitButton exitButton = new ExitButton();
         ReturnButton returnButton = new ReturnButton(this, previousFrame);
+        JButton changePasswordButton = createStyledButton("Change Password");
+        changePasswordButton.setPreferredSize(new Dimension(250, 40));
+        changePasswordButton.addActionListener(e -> showChangePasswordDialog());
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
@@ -62,6 +65,7 @@ public class BranchManagerPage extends JFrame {
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.setOpaque(false);
         leftPanel.add(returnButton);
+        leftPanel.add(changePasswordButton);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.setOpaque(false);
@@ -131,6 +135,29 @@ public class BranchManagerPage extends JFrame {
         return button;
     }
 
+    private void showChangePasswordDialog() {
+        ChangePasswordDialog dialog = new ChangePasswordDialog(this);
+        dialog.addSaveListener(e -> {
+            String newPassword = dialog.getNewPassword();
+            String confirmPassword = dialog.getConfirmPassword();
+            if (newPassword.equals(confirmPassword))
+            {
+                /*
+                int result = branchManagerController.changePassword(newPassword);
+                if (result == 1) {
+                    Notification.showMessage(this, "Password changed successfully!");
+                    dialog.dispose();
+                } else {
+                    Notification.showErrorMessage(this, "Failed to change password. Please try again.");
+                }
+                 */
+            } else {
+                Notification.showErrorMessage(this, "Passwords do not match!");
+            }
+        });
+        dialog.setVisible(true);
+    }
+
     private void showCreateDataEntryOperatorDialog() {
         JDialog dialog = new JDialog(this, "Create Data Entry Operator", true);
         dialog.setLayout(new GridBagLayout());
@@ -165,7 +192,7 @@ public class BranchManagerPage extends JFrame {
 
             String resultMessage = ErrorMapper.getErrorMessage(resultCode);
             if (resultCode == 1) { // Success
-                Notification.showMessage(this, "Data Entry Operator Added Sucessfully");
+                Notification.showMessage(this, "Data Entry Operator Added Successfully");
             } else { // Error
                 Notification.showErrorMessage(this, resultMessage);
             }
@@ -211,7 +238,7 @@ public class BranchManagerPage extends JFrame {
 
             String resultMessage = ErrorMapper.getErrorMessage(resultCode);
             if (resultCode == 1) { // Success
-                Notification.showMessage(this, "Cashier Added Sucessfully");
+                Notification.showMessage(this, "Cashier Added Successfully");
             } else { // Error
                 Notification.showErrorMessage(this, resultMessage);
             }
@@ -248,4 +275,14 @@ public class BranchManagerPage extends JFrame {
         });
         return textField;
     }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            BranchManagerPage branchManagerPage = new BranchManagerPage(null);
+            branchManagerPage.setVisible(true);
+        });
+
+    }
+
 }
+

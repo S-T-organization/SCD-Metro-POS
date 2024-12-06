@@ -28,9 +28,9 @@ public class CashierPage extends JFrame
     private final CashierController controller;
     private final String branchCode;
     private Thread clientThread;
+
     public CashierPage(JFrame previousFrame, String branchCode)
     {
-
         this.branchCode = branchCode;
         controller = new CashierController(); // Initialize the controller
 
@@ -66,13 +66,19 @@ public class CashierPage extends JFrame
         };
         setContentPane(contentPanel);
 
-        // Add exit and return buttons
+        // Add exit, return, and change password buttons
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.setOpaque(false);
         leftPanel.add(createReturnButton(previousFrame));
+
+        // Add Change Password button
+        JButton changePasswordButton = createStyledButton("Change Password");
+        changePasswordButton.setPreferredSize(new Dimension(200, 40));
+        changePasswordButton.addActionListener(e -> showChangePasswordDialog());
+        leftPanel.add(changePasswordButton);
 
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.setOpaque(false);
@@ -145,6 +151,30 @@ public class CashierPage extends JFrame
         // Generate Bill action
         generateBillButton.addActionListener(e -> generateBill());
     }
+
+    private void showChangePasswordDialog() {
+        ChangePasswordDialog dialog = new ChangePasswordDialog(this);
+        dialog.addSaveListener(e -> {
+            String newPassword = dialog.getNewPassword();
+            String confirmPassword = dialog.getConfirmPassword();
+            if (newPassword.equals(confirmPassword))
+            {
+                /*
+                int result = controller.changePassword(newPassword);
+                if (result == 1) {
+                    Notification.showMessage(this, "Password changed successfully!");
+                    dialog.dispose();
+                } else {
+                    Notification.showErrorMessage(this, "Failed to change password. Please try again.");
+                }
+                 */
+            } else {
+                Notification.showErrorMessage(this, "Passwords do not match!");
+            }
+        });
+        dialog.setVisible(true);
+    }
+
     private void startBarcodeScannerServer() {
         // Start the Barcode Scanner server in a separate thread
         new Thread(() -> {

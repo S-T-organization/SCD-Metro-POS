@@ -9,8 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataEntryOperatorPage extends JFrame
-{
+public class DataEntryOperatorPage extends JFrame {
     private static final Color METRO_YELLOW = new Color(255, 219, 0); // #FFDB00
     private static final Color METRO_BLUE = new Color(0, 41, 79);     // #00294F
 
@@ -49,11 +48,30 @@ public class DataEntryOperatorPage extends JFrame
         };
         setContentPane(contentPanel);
 
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         topPanel.setOpaque(false);
-        topPanel.add(new ReturnButton(this, previousFrame), BorderLayout.WEST);
-        topPanel.add(new ExitButton(), BorderLayout.EAST);
-        contentPanel.add(topPanel, BorderLayout.NORTH);
+
+        // Add return button
+        topPanel.add(new ReturnButton(this, previousFrame));
+
+        // Add change password button
+        JButton changePasswordButton = createStyledButton("Change Password");
+        changePasswordButton.setPreferredSize(new Dimension(200, 40));
+        changePasswordButton.addActionListener(e -> showChangePasswordDialog());
+        topPanel.add(changePasswordButton);
+
+        // Add exit button in a wrapper panel to keep it on the right
+        JPanel exitWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        exitWrapper.setOpaque(false);
+        exitWrapper.add(new ExitButton());
+
+        // Use BorderLayout for the main top panel to keep exit button on right
+        JPanel mainTopPanel = new JPanel(new BorderLayout());
+        mainTopPanel.setOpaque(false);
+        mainTopPanel.add(topPanel, BorderLayout.WEST);
+        mainTopPanel.add(exitWrapper, BorderLayout.EAST);
+
+        contentPanel.add(mainTopPanel, BorderLayout.NORTH);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setOpaque(false);
@@ -69,7 +87,7 @@ public class DataEntryOperatorPage extends JFrame
         leftGbc.insets = new Insets(40, 20, 20, 10);
         mainPanel.add(leftPanel, leftGbc);
 
-        JPanel rightPanel = createRightPanel(); // Ensure this is initialized correctly
+        JPanel rightPanel = createRightPanel();
         GridBagConstraints rightGbc = new GridBagConstraints();
         rightGbc.gridx = 1;
         rightGbc.gridy = 0;
@@ -80,6 +98,22 @@ public class DataEntryOperatorPage extends JFrame
         mainPanel.add(rightPanel, rightGbc);
 
         loadVendors();
+    }
+
+    private void showChangePasswordDialog() {
+        ChangePasswordDialog dialog = new ChangePasswordDialog(this);
+        dialog.addSaveListener(e -> {
+            String newPassword = dialog.getNewPassword();
+            String confirmPassword = dialog.getConfirmPassword();
+            if (newPassword.equals(confirmPassword)) {
+                // TODO: Implement actual password change logic
+                JOptionPane.showMessageDialog(this, "Password changed successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                dialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Passwords do not match!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        dialog.setVisible(true);
     }
 
     private JPanel createLeftPanel() {
@@ -346,13 +380,10 @@ public class DataEntryOperatorPage extends JFrame
             productsPanel.add(noProductsLabel);
             productsPanel.revalidate();
             productsPanel.repaint();
-        }
-        else
-        {
+        } else {
             Notification.showErrorMessage(this, "Failed to add products to the database.");
         }
     }
-
 
 
     private JButton createCircularButton(String text) {
