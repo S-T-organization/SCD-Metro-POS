@@ -1,4 +1,5 @@
 package backend;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -185,6 +186,7 @@ public class CheckConnectionOfInternet {
     private static boolean isDuplicateEntryError() {
         return lastErrorMessage != null && lastErrorMessage.contains("Duplicate entry");
     }
+
     public static void showRestoringDataPanel() {
         JFrame frame = new JFrame();
         frame.setSize(400, 200);
@@ -240,7 +242,7 @@ public class CheckConnectionOfInternet {
     }
 
     public static void monitorInternet() {
-        AtomicBoolean flag= new AtomicBoolean(false);//that means kay abhi abhi thread bana hai
+        AtomicBoolean flag = new AtomicBoolean(false);//that means kay abhi abhi thread bana hai
         System.out.println("hannjiii");
         new Thread(() -> {
             while (true) {
@@ -257,7 +259,7 @@ public class CheckConnectionOfInternet {
 
                     if (isConnected && !wasInternetAvailable) {
                         System.out.println("Internet restored! Reinitializing database connection...");
-                        if(flag.get()&&hasPendingData) {
+                        if (hasPendingData && flag.get()) {
                             showRestoringDataPanel();
                             processPendingData();
                         }
@@ -268,7 +270,9 @@ public class CheckConnectionOfInternet {
 
                             if (hasPendingData) {
 
-
+                                System.out.println("Processing pending data...");
+                                showRestoringDataPanel();
+                                processPendingData();
                             }
                         } else {
                             System.out.println("Failed to re-establish database connection.");
