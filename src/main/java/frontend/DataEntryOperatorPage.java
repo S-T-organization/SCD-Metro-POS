@@ -18,11 +18,11 @@ public class DataEntryOperatorPage extends JFrame {
     private final DataEntryOperatorController controller;
     private final List<Product> productList;
     private JLabel noProductsLabel;
-
-    public DataEntryOperatorPage(JFrame previousFrame) {
+    private String email;
+    public DataEntryOperatorPage(JFrame previousFrame,String email) {
         controller = new DataEntryOperatorController();
         productList = new ArrayList<>();
-
+         this.email=email;
         setTitle("Metro Billing System - Data Entry Operator");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -106,11 +106,13 @@ public class DataEntryOperatorPage extends JFrame {
             String newPassword = dialog.getNewPassword();
             String confirmPassword = dialog.getConfirmPassword();
             if (newPassword.equals(confirmPassword)) {
-                // TODO: Implement actual password change logic
-                JOptionPane.showMessageDialog(this, "Password changed successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                dialog.dispose();
+                if(controller.ChangePasswordForDEO(email,newPassword)==1)
+                {
+                    Notification.showMessage(this, "Password changed successfully!");
+                    dialog.dispose();
+                }
             } else {
-                JOptionPane.showMessageDialog(this, "Passwords do not match!", "Error", JOptionPane.ERROR_MESSAGE);
+                Notification.showErrorMessage(this, "Passwords do not match. Please try again.");
             }
         });
         dialog.setVisible(true);
@@ -522,4 +524,6 @@ public class DataEntryOperatorPage extends JFrame {
         label.setForeground(METRO_BLUE);
         return label;
     }
+
+
 }

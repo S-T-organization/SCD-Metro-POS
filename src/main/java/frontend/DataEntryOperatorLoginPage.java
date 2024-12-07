@@ -213,7 +213,7 @@ public class DataEntryOperatorLoginPage extends JFrame {
             // Success case
             Notification.showMessage(this, "Login Successful");
             dispose(); // Close the login page
-            SwingUtilities.invokeLater(() -> new DataEntryOperatorPage(this).setVisible(true)); // Navigate to dashboard
+            SwingUtilities.invokeLater(() -> new DataEntryOperatorPage(this,email).setVisible(true)); // Navigate to dashboard
         } else
         {
             // Error case

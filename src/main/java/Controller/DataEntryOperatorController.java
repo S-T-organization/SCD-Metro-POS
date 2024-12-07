@@ -46,4 +46,8 @@ public class DataEntryOperatorController {
     public String getVendorIdByVendorName(String vendorName) {
         return dataEntryOperator.getVendorIdByVendorName(vendorName);
     }
+    //Change password
+    public int ChangePasswordForDEO(String email,String newPassword) {
+        return dataEntryOperator.changePassword(email, newPassword);
+    }
 }

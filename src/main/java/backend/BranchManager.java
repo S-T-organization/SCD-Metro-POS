@@ -98,31 +98,14 @@ public class BranchManager {
     }
 
     // Change Password
-    public int changePassword(String email, String oldPassword, String newPassword) {
+    public int changePassword(String email, String newPassword) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             System.out.println("Internet unavailable. Cannot change password.");
             return -1;
         }
 
         try {
-            String verifyQuery = "SELECT password FROM Employee WHERE email = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(verifyQuery)) {
-                pstmt.setString(1, email);
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) {
-                        String currentPassword = rs.getString("password");
-                        if (!currentPassword.equals(oldPassword)) {
-                            System.out.println("Old password is incorrect.");
-                            return 4;
-                        }
-                    } else {
-                        System.out.println("Employee not found.");
-                        return 5;
-                    }
-                }
-            }
-
-            String updateQuery = "UPDATE Employee SET password = ? WHERE email = ?";
+            String updateQuery = "UPDATE BranchManager SET password = ? WHERE email = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
                 pstmt.setString(1, newPassword);
                 pstmt.setString(2, email);
@@ -131,6 +114,9 @@ public class BranchManager {
                 if (rowsUpdated > 0) {
                     System.out.println("Password updated successfully.");
                     return 1;
+                } else {
+                    System.out.println("Employee not found.");
+                    return 5;
                 }
             }
         } catch (Exception e) {
@@ -139,7 +125,6 @@ public class BranchManager {
         }
         return 0;
     }
-
     // Login Function
     public int login(String email, String password, String branchCode) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {

@@ -130,7 +130,7 @@ public class BranchManagerLoginPage extends JFrame
             { // Success case
                 Notification.showMessage(this, "Login Sucessfull");
                 dispose(); // Close the login page
-                SwingUtilities.invokeLater(() -> new BranchManagerPage(this).setVisible(true)); // Navigate to dashboard
+                SwingUtilities.invokeLater(() -> new BranchManagerPage(this,email).setVisible(true)); // Navigate to dashboard
             } else
             { // Error case
                 Notification.showErrorMessage(this, "uhytdrsdtfyguhihugyftdrshe");

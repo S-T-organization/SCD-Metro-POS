@@ -28,9 +28,11 @@ public class CashierPage extends JFrame
     private final CashierController controller;
     private final String branchCode;
     private Thread clientThread;
-
-    public CashierPage(JFrame previousFrame, String branchCode)
+    private String email;
+    public CashierPage(JFrame previousFrame, String branchCode,String email)
     {
+        this.email=email;
+
         this.branchCode = branchCode;
         controller = new CashierController(); // Initialize the controller
 
@@ -159,15 +161,15 @@ public class CashierPage extends JFrame
             String confirmPassword = dialog.getConfirmPassword();
             if (newPassword.equals(confirmPassword))
             {
-                /*
-                int result = controller.changePassword(newPassword);
+
+                int result = controller.ChangePasswordForCashier(email,newPassword);
                 if (result == 1) {
                     Notification.showMessage(this, "Password changed successfully!");
                     dialog.dispose();
                 } else {
                     Notification.showErrorMessage(this, "Failed to change password. Please try again.");
                 }
-                 */
+
             } else {
                 Notification.showErrorMessage(this, "Passwords do not match!");
             }
@@ -466,6 +468,8 @@ public class CashierPage extends JFrame
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)));
         return textField;
     }
+
+
 
 }
 

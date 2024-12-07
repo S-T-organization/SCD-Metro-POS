@@ -23,8 +23,8 @@ public class BranchManagerController {
     }
 
 
-    public int changePassword(String email, String oldPassword, String newPassword) {
-        return branchManager.changePassword(email, oldPassword, newPassword);
+    public int changePassword(String email, String newPassword) {
+        return branchManager.changePassword(email, newPassword);
     }
 
     public int login(String email, String password,String BranchCode) {
@@ -34,6 +34,7 @@ public class BranchManagerController {
     public String[] getAllBranchNames() {
         return branchManager.getAllBranchNames();
     }
+
 
     public String getBranchCodeByName(String branchName) {
         return branchManager.getBranchCodeByName(branchName);

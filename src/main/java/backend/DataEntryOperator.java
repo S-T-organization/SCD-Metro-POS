@@ -195,7 +195,6 @@ public class DataEntryOperator {
             }
         }
     }
-
     private int addSingleProduct(Product product) {
         try {
             // Check if the product already exists
@@ -268,7 +267,6 @@ public class DataEntryOperator {
             return -1; // Error
         }
     }
-
     private void createProductsTableIfNotExists() {
         String createTableQuery = """
             CREATE TABLE IF NOT EXISTS Products (
@@ -337,5 +335,32 @@ public class DataEntryOperator {
             System.out.println("Error fetching vendor ID for vendor name '" + vendorName + "': " + e.getMessage());
             return null; // Error occurred
         }
+    }
+    public int changePassword(String email, String newPassword) {
+        if (!CheckConnectionOfInternet.isInternetAvailable()) {
+            System.out.println("Internet unavailable. Cannot change password.");
+            return -1;
+        }
+
+        try {
+            String updateQuery = "UPDATE Employee SET password = ? WHERE email = ? AND role = 'data_entry_operator'";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
+                pstmt.setString(1, newPassword);
+                pstmt.setString(2, email);
+
+                int rowsUpdated = pstmt.executeUpdate();
+                if (rowsUpdated > 0) {
+                    System.out.println("Password updated successfully.");
+                    return 1;
+                } else {
+                    System.out.println("DEO not found.");
+                    return 5;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error updating password: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

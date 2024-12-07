@@ -9,9 +9,10 @@ public class BranchManagerPage extends JFrame {
     private static final Color METRO_YELLOW = new Color(230, 190, 0);
     private static final Color METRO_BLUE = new Color(0, 41, 84);
     private final BranchManagerController branchManagerController;
-
-    public BranchManagerPage(JFrame previousFrame) {
+    private String email;
+    public BranchManagerPage(JFrame previousFrame,String email) {
         branchManagerController = new BranchManagerController();
+        this .email=email;
 
         setTitle("Metro Billing System - Branch Manager");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -142,15 +143,15 @@ public class BranchManagerPage extends JFrame {
             String confirmPassword = dialog.getConfirmPassword();
             if (newPassword.equals(confirmPassword))
             {
-                /*
-                int result = branchManagerController.changePassword(newPassword);
+
+                int result = branchManagerController.changePassword(email,newPassword);
                 if (result == 1) {
                     Notification.showMessage(this, "Password changed successfully!");
                     dialog.dispose();
                 } else {
                     Notification.showErrorMessage(this, "Failed to change password. Please try again.");
                 }
-                 */
+
             } else {
                 Notification.showErrorMessage(this, "Passwords do not match!");
             }
@@ -278,7 +279,7 @@ public class BranchManagerPage extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            BranchManagerPage branchManagerPage = new BranchManagerPage(null);
+            BranchManagerPage branchManagerPage = new BranchManagerPage(null,"saimimran2003@gmail.com");
             branchManagerPage.setVisible(true);
         });
 

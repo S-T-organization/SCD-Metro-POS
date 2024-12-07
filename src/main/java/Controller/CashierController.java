@@ -36,4 +36,7 @@ public class CashierController {
     public String removeProduct(List<String> namesAndQuantity,String branchCode) {
         return cashier.removeProduct(namesAndQuantity,branchCode);
     }
+    public int ChangePasswordForCashier(String email, String newPassword) {
+        return cashier.changePassword(email, newPassword);
+    }
 }

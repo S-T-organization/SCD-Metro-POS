@@ -247,9 +247,6 @@ public class Cashier
 
         return result.toString(); // If all operations are successful, return "true"
     }
-
-
-
     private void createSalesTableIfNotExists() {
         String createTableQuery = """
         CREATE TABLE IF NOT EXISTS Sales (
@@ -272,6 +269,31 @@ public class Cashier
             System.out.println("Error creating Sales table: " + e.getMessage());
         }
     }
+    public int changePassword(String email, String newPassword) {
+        if (!CheckConnectionOfInternet.isInternetAvailable()) {
+            System.out.println("Internet unavailable. Cannot change password.");
+            return -1;
+        }
 
+        try {
+            String updateQuery = "UPDATE Employee SET password = ? WHERE email = ? AND role = 'cashier'";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateQuery)) {
+                pstmt.setString(1, newPassword);
+                pstmt.setString(2, email);
 
+                int rowsUpdated = pstmt.executeUpdate();
+                if (rowsUpdated > 0) {
+                    System.out.println("Password updated successfully.");
+                    return 1;
+                } else {
+                    System.out.println("Cashier not found.");
+                    return 5;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error updating password: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
