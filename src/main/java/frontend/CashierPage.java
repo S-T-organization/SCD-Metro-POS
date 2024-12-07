@@ -500,7 +500,9 @@ public class CashierPage extends JFrame
         return textField;
     }
 
-
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new CashierPage(null, "B001","cym786@gmail.com").setVisible(true));
+    }
 
 }
 

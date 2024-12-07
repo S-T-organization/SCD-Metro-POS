@@ -16,8 +16,8 @@ public class BackendMain {
         Connection conn = DBConnection.getConnection();
         CheckConnectionOfInternet check = new CheckConnectionOfInternet();
         check.monitorInternet();
-//       BranchManager manager = new BranchManager();
-//       manager.addCashier("101","Saim","cym786@gmail.com","122200");
+        BranchManager manager = new BranchManager();
+        manager.addCashier("101","Saim","cym286@gmail.com","122200");
 //       manager.addDataEntryOperator("101","Talha","tato@gmail,com","100000");
 
 ////        // Testing SuperAdmin functionalities
@@ -54,38 +54,38 @@ public class BackendMain {
 //        dataEntryOperator.addVendor("Sharjeena", "54001230123", "0293924410", "LAHORE");
 
 
-        ReportsController reportsController = new ReportsController();
-
-// Fetch weekly total sales for all branches
-        double totalWeeklySales = reportsController.getTotalSalesByTime("weekly");
-        System.out.println("---------- Weekly Sales Report ----------");
-        System.out.printf("Total Weekly Sales (All Branches): %.2f%n", totalWeeklySales);
-
-// Fetch branch name by ID
-        String branchName = reportsController.GetBranchNameById("101");
-        if (branchName != null) {
-            // Fetch total sales for a specific branch (weekly)
-            double branchSales = reportsController.getTotalSalesByBranchAndTime("weekly", "101");
-            System.out.printf("%nTotal Weekly Sales for %s Branch: %.2f%n", branchName, branchSales);
-
-            // Fetch sales percentages for products in the branch
-            System.out.println("\nProduct Sales Percentages for " + branchName + " Branch:");
-            Map<String, Double> branchProductPercentages = reportsController.getProductSalesPercentages("weekly", "101");
-            for (Map.Entry<String, Double> entry : branchProductPercentages.entrySet()) {
-                System.out.printf("Product: %s, Percentage: %.2f%%%n", entry.getKey(), entry.getValue());
-            }
-        } else {
-            System.out.println("\nBranch ID '101' not found.");
-        }
-
-// Fetch sales percentages for all branches
-        System.out.println("\n---------- Product Sales Percentages (All Branches) ----------");
-        Map<String, Double> allBranchProductPercentages = reportsController.getProductSalesPercentages("weekly", null);
-        for (Map.Entry<String, Double> entry : allBranchProductPercentages.entrySet()) {
-            System.out.printf("Product: %s, Percentage: %.2f%%%n", entry.getKey(), entry.getValue());
-        }
-
-
+//        ReportsController reportsController = new ReportsController();
+//
+//// Fetch weekly total sales for all branches
+//        double totalWeeklySales = reportsController.getTotalSalesByTime("weekly");
+//        System.out.println("---------- Weekly Sales Report ----------");
+//        System.out.printf("Total Weekly Sales (All Branches): %.2f%n", totalWeeklySales);
+//
+//// Fetch branch name by ID
+//        String branchName = reportsController.GetBranchNameById("101");
+//        if (branchName != null) {
+//            // Fetch total sales for a specific branch (weekly)
+//            double branchSales = reportsController.getTotalSalesByBranchAndTime("weekly", "101");
+//            System.out.printf("%nTotal Weekly Sales for %s Branch: %.2f%n", branchName, branchSales);
+//
+//            // Fetch sales percentages for products in the branch
+//            System.out.println("\nProduct Sales Percentages for " + branchName + " Branch:");
+//            Map<String, Double> branchProductPercentages = reportsController.getProductSalesPercentages("weekly", "101");
+//            for (Map.Entry<String, Double> entry : branchProductPercentages.entrySet()) {
+//                System.out.printf("Product: %s, Percentage: %.2f%%%n", entry.getKey(), entry.getValue());
+//            }
+//        } else {
+//            System.out.println("\nBranch ID '101' not found.");
+//        }
+//
+//// Fetch sales percentages for all branches
+//        System.out.println("\n---------- Product Sales Percentages (All Branches) ----------");
+//        Map<String, Double> allBranchProductPercentages = reportsController.getProductSalesPercentages("weekly", null);
+//        for (Map.Entry<String, Double> entry : allBranchProductPercentages.entrySet()) {
+//            System.out.printf("Product: %s, Percentage: %.2f%%%n", entry.getKey(), entry.getValue());
+//        }
+//
+//
 
     }
 }
