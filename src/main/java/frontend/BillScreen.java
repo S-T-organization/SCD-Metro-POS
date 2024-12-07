@@ -1,13 +1,12 @@
 package frontend;
 
-/*
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-*/
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Font;
 import java.io.FileOutputStream;
 import java.util.List;
 
@@ -79,7 +78,7 @@ public class BillScreen extends JFrame {
         buttonsPanel.setOpaque(false);
 
         JButton downloadButton = createStyledButton("Download PDF");
-        //downloadButton.addActionListener(e -> downloadBillAsPDF());
+        downloadButton.addActionListener(e -> downloadBillAsPDF());
 
         JButton closeButton = createStyledButton("Close");
         closeButton.addActionListener(e -> dispose());
@@ -105,7 +104,7 @@ public class BillScreen extends JFrame {
         return table;
     }
 
-    /*
+
     private void downloadBillAsPDF() {
         try {
             Document document = new Document();
@@ -143,7 +142,7 @@ public class BillScreen extends JFrame {
             Notification.showErrorMessage(this, "Failed to download PDF: " + e.getMessage());
         }
     }
-    */
+
 
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text) {

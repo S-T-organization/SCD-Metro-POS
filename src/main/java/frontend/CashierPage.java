@@ -184,6 +184,7 @@ public class CashierPage extends JFrame
             scanner.startServer();
         }).start();
     }
+
     private void startBarcodeScannerClient() {
         // Start the client to listen for QR codes
         new Thread(() -> {
@@ -254,26 +255,55 @@ public class CashierPage extends JFrame
 
     private void showAddProductDialog() {
         JDialog dialog = new JDialog(this, "Add Product", true);
-        dialog.setLayout(new GridBagLayout());
-        dialog.getContentPane().setBackground(METRO_YELLOW);
+        dialog.setLayout(new BorderLayout(20, 20));
+        dialog.getContentPane().setBackground(METRO_YELLOW); // Light gray background
+
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBackground(METRO_YELLOW);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, 0, 10, 0);
+
+        JLabel titleLabel = new JLabel("Add New Product");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setForeground(new Color(0, 0, 0)); // Black color for better contrast on yellow background
+        contentPanel.add(titleLabel, gbc);
 
         JLabel productIdLabel = new JLabel("Product ID:");
-        productIdLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        productIdLabel.setForeground(METRO_BLUE);
-        gbc.gridx = 0; gbc.gridy = 0;
-        dialog.add(productIdLabel, gbc);
+        productIdLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        contentPanel.add(productIdLabel, gbc);
 
-        JTextField productIdField = createStyledTextField();
-        gbc.gridx = 1; gbc.gridy = 0;
-        dialog.add(productIdField, gbc);
+        JTextField productIdField = new JTextField();
+        productIdField.setFont(new Font("Arial", Font.PLAIN, 18));
+        productIdField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(METRO_BLUE, 2),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        contentPanel.add(productIdField, gbc);
 
-        JButton confirmButton = createStyledButton("Add");
-        gbc.gridx = 0; gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        dialog.add(confirmButton, gbc);
+        JButton confirmButton = new JButton("Add Product") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getModel().isPressed() ? METRO_BLUE.darker() : METRO_BLUE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        confirmButton.setForeground(Color.WHITE);
+        confirmButton.setFont(new Font("Arial", Font.BOLD, 18));
+        confirmButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        confirmButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        confirmButton.setContentAreaFilled(false);
+
+        gbc.insets = new Insets(10, 0, 0, 0);
+        contentPanel.add(confirmButton, gbc);
+
+        dialog.add(contentPanel, BorderLayout.CENTER);
 
         confirmButton.addActionListener(e -> {
             String productId = productIdField.getText();
@@ -289,16 +319,17 @@ public class CashierPage extends JFrame
                     updateTotal();
                     Notification.showMessage(this, "Product added successfully!");
                 } else {
-                    Notification.showErrorMessage(this, "Product not found!");
+                    Notification.showMessage(this, "Product not found!");
                 }
                 dialog.dispose();
             }
         });
 
-        dialog.pack();
+        dialog.setSize(400, 300);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
+
 
     private void generateBill() {
         List<String> productQuantities = new ArrayList<>();
