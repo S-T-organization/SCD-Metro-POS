@@ -1,176 +1,250 @@
 package frontend;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
-
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.Font;
-import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
 
 public class BillScreen extends JFrame {
-    private static final Color METRO_YELLOW = new Color(230, 190, 0);
-    private static final Color METRO_BLUE = new Color(0, 41, 84);
-
+    private static final Font RECEIPT_FONT = new Font("Courier New", Font.PLAIN, 12);
+    private static final Font RECEIPT_FONT_BOLD = new Font("Courier New", Font.BOLD, 12);
     private final List<String[]> billDetails;
     private final double total;
+    private final String branchName;
+    private final double taxRate = 0.1; // 10% tax
 
-    public BillScreen(JFrame parent, List<String[]> billDetails, double total) {
+    public BillScreen(JFrame parent, List<String[]> billDetails, double total, String branchName) {
         this.billDetails = billDetails;
         this.total = total;
+        this.branchName = branchName;
 
-        setTitle("Metro Billing System - Bill");
+        setTitle("Receipt");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(820, 620); // Increased by 20 pixels in both dimensions to account for the border
+        setSize(400, 600);
         setLocationRelativeTo(parent);
-        setResizable(true);
+        setResizable(false);
 
-        // Main content panel
-        JPanel contentPanel = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        // Main panel with white background
+        JPanel mainPanel = new JPanel();
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        mainPanel.setLayout(new BorderLayout());
 
-                // Yellow background
-                g2d.setColor(METRO_YELLOW);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
+        // Receipt panel
+        JPanel receiptPanel = new JPanel();
+        receiptPanel.setBackground(Color.WHITE);
+        receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
 
-                // Blue header
-                g2d.setColor(METRO_BLUE);
-                g2d.fillRect(0, 0, getWidth(), 100);
+        // Store header
+        addCenteredText(receiptPanel, "Metro Cash & Carry", true);
+        addCenteredText(receiptPanel, branchName + " Branch", false);
+        addCenteredText(receiptPanel, "Lahore, Punjab", false);
+        addCenteredText(receiptPanel, "Tel: 042-35314159", false);
+        addCenteredText(receiptPanel, "NTN: 1234567-8", false);
+        addSeparator(receiptPanel);
 
-                // Bill text
-                g2d.setColor(Color.WHITE);
-                g2d.setFont(new Font("Arial", Font.BOLD, 48));
-                String headerText = "BILL";
-                FontMetrics fm = g2d.getFontMetrics();
-                int textWidth = fm.stringWidth(headerText);
-                g2d.drawString(headerText, (getWidth() - textWidth) / 2, 70);
+        // Date and Time
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss a");
+        Date now = new Date();
+
+        addLeftAlignedText(receiptPanel, "Date: " + dateFormat.format(now), false);
+        addLeftAlignedText(receiptPanel, "Time: " + timeFormat.format(now), false);
+        addSeparator(receiptPanel);
+
+        // Column headers
+        JPanel headerPanel = new JPanel(new GridLayout(1, 3));
+        headerPanel.setBackground(Color.WHITE);
+        addText(headerPanel, "Qty Item", false, SwingConstants.LEFT);
+        addText(headerPanel, "Price", false, SwingConstants.RIGHT);
+        addText(headerPanel, "Total", false, SwingConstants.RIGHT);
+        receiptPanel.add(headerPanel);
+        addSeparator(receiptPanel);
+
+        // Bill items
+        for (String[] item : billDetails) {
+            JPanel itemPanel = new JPanel(new GridLayout(1, 3));
+            itemPanel.setBackground(Color.WHITE);
+
+            try {
+                double itemPrice = Double.parseDouble(item[1].trim());
+                int itemQuantity = Integer.parseInt(item[2].trim());
+                double itemTotal = itemPrice * itemQuantity;
+
+                addText(itemPanel, itemQuantity + " " + item[0], false, SwingConstants.LEFT);
+                addText(itemPanel, String.format("%.2f", itemPrice), false, SwingConstants.RIGHT);
+                addText(itemPanel, String.format("%.2f", itemTotal), false, SwingConstants.RIGHT);
+
+                receiptPanel.add(itemPanel);
+            } catch (NumberFormatException e) {
+                // Skip invalid items
+                System.err.println("Invalid item in billDetails: " + e.getMessage());
             }
-        };
-        setContentPane(contentPanel);
+        }
 
-        // Add a border to the content pane
-        contentPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.darkGray, 3),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)
-        ));
+        addSeparator(receiptPanel);
 
-        // Create center panel to display bill details
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setOpaque(false);
+        // Tax Calculation
+        double tax = total * taxRate;
+        double grandTotal = total + tax;
 
-        JTable billTable = createBillTable();
-        centerPanel.add(new JScrollPane(billTable), BorderLayout.CENTER);
+        // Total Amount
+        JPanel totalPanel = new JPanel(new GridLayout(1, 2));
+        totalPanel.setBackground(Color.WHITE);
+        addText(totalPanel, "Total Amount:", true, SwingConstants.LEFT);
+        addText(totalPanel, String.format("Rs. %.2f", total), true, SwingConstants.RIGHT);
+        receiptPanel.add(totalPanel);
 
-        JLabel totalLabel = new JLabel(String.format("Total: Rs%.2f", total));
-        totalLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        totalLabel.setForeground(METRO_BLUE);
-        totalLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        centerPanel.add(totalLabel, BorderLayout.SOUTH);
+        // Tax Amount
+        JPanel taxPanel = new JPanel(new GridLayout(1, 2));
+        taxPanel.setBackground(Color.WHITE);
+        addText(taxPanel, "Tax (10%):", true, SwingConstants.LEFT);
+        addText(taxPanel, String.format("Rs. %.2f", tax), true, SwingConstants.RIGHT);
+        receiptPanel.add(taxPanel);
 
-        // Create buttons panel
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonsPanel.setOpaque(false);
+        // Grand Total
+        JPanel grandTotalPanel = new JPanel(new GridLayout(1, 2));
+        grandTotalPanel.setBackground(Color.WHITE);
+        addText(grandTotalPanel, "Grand Total:", true, SwingConstants.LEFT);
+        addText(grandTotalPanel, String.format("Rs. %.2f", grandTotal), true, SwingConstants.RIGHT);
+        receiptPanel.add(grandTotalPanel);
 
-        JButton downloadButton = createStyledButton("Download PDF");
-        downloadButton.addActionListener(e -> downloadBillAsPDF());
+        addSeparator(receiptPanel);
 
-        JButton closeButton = createStyledButton("Close");
+        // Footer
+        addCenteredText(receiptPanel, "Thank you for shopping with us!", false);
+        addCenteredText(receiptPanel, "Please come again", false);
+        addCenteredText(receiptPanel, "*** End of Bill ***", false);
+
+        // Scroll pane for receipt
+        JScrollPane scrollPane = new JScrollPane(receiptPanel);
+        scrollPane.setBorder(null);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Buttons panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonsPanel.setBackground(Color.WHITE);
+
+        JButton downloadButton = new JButton("Download PDF");
+        downloadButton.setBackground(new Color(13, 110, 253));
+        downloadButton.setForeground(Color.WHITE);
+        downloadButton.setFocusPainted(false);
+        downloadButton.addActionListener(e -> downloadPDF(branchName, tax, grandTotal));
+
+        JButton closeButton = new JButton("Close");
+        closeButton.setBackground(Color.WHITE);
+        closeButton.setFocusPainted(false);
         closeButton.addActionListener(e -> dispose());
 
         buttonsPanel.add(downloadButton);
         buttonsPanel.add(closeButton);
+        mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
-        contentPanel.add(centerPanel, BorderLayout.CENTER);
-        contentPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        setContentPane(mainPanel);
     }
 
-    private JTable createBillTable() {
-        String[] columnNames = {"Product Name", "Price", "Quantity"};
-        Object[][] data = billDetails.stream().map(row -> row).toArray(Object[][]::new);
-
-        JTable table = new JTable(data, columnNames);
-        table.setFont(new Font("Arial", Font.PLAIN, 14));
-        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
-        table.setRowHeight(30);
-        table.setSelectionBackground(METRO_BLUE);
-        table.setSelectionForeground(Color.WHITE);
-
-        return table;
+    private void addCenteredText(JPanel panel, String text, boolean bold) {
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setFont(bold ? RECEIPT_FONT_BOLD : RECEIPT_FONT);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(label);
     }
 
+    private void addLeftAlignedText(JPanel panel, String text, boolean bold) {
+        JLabel label = new JLabel(text);
+        label.setFont(bold ? RECEIPT_FONT_BOLD : RECEIPT_FONT);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(label);
+    }
 
-    private void downloadBillAsPDF() {
+    private void addText(JPanel panel, String text, boolean bold, int alignment) {
+        JLabel label = new JLabel(text, alignment);
+        label.setFont(bold ? RECEIPT_FONT_BOLD : RECEIPT_FONT);
+        panel.add(label);
+    }
+
+    private void addSeparator(JPanel panel) {
+        JLabel separator = new JLabel("-".repeat(48), SwingConstants.CENTER);
+        separator.setFont(RECEIPT_FONT);
+        separator.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(separator);
+    }
+
+    private void downloadPDF(String branchName, double tax, double grandTotal) {
         try {
-            Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream("Bill.pdf"));
-
+            Document document = new Document(PageSize.A4);
+            PdfWriter.getInstance(document, new FileOutputStream("Receipt.pdf"));
             document.open();
 
-            // Add title
-            Paragraph title = new Paragraph("Metro Billing System - Bill", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLUE));
-            title.setAlignment(Element.ALIGN_CENTER);
-            document.add(title);
-            document.add(new Paragraph("\n"));
+            com.itextpdf.text.Font normalFont = FontFactory.getFont(FontFactory.COURIER, 12);
+            com.itextpdf.text.Font boldFont = FontFactory.getFont(FontFactory.COURIER_BOLD, 12);
 
-            // Create table
-            PdfPTable table = new PdfPTable(3);
-            table.setWidthPercentage(100);
-            table.addCell("Product Name");
-            table.addCell("Price");
-            table.addCell("Quantity");
+            // Header
+            Paragraph header = new Paragraph("Metro Cash & Carry\n", boldFont);
+            header.setAlignment(Element.ALIGN_CENTER);
+            document.add(header);
 
-            for (String[] row : billDetails) {
-                table.addCell(row[0]);
-                table.addCell(row[1]);
-                table.addCell(row[2]);
+            document.add(new Paragraph(branchName + " Branch\nLahore, Punjab\nTel: 042-35314159\nNTN: 1234567-8\n", normalFont));
+            document.add(new Paragraph("-".repeat(48) + "\n", normalFont));
+
+            // Date and Time
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss a");
+            Date now = new Date();
+            document.add(new Paragraph("Date: " + dateFormat.format(now) + "\nTime: " + timeFormat.format(now) + "\n", normalFont));
+            document.add(new Paragraph("-".repeat(48) + "\n", normalFont));
+
+            // Items
+            for (String[] item : billDetails) {
+                try {
+                    double itemPrice = Double.parseDouble(item[1].trim());
+                    int itemQuantity = Integer.parseInt(item[2].trim());
+                    double itemTotal = itemPrice * itemQuantity;
+
+                    Paragraph itemLine = new Paragraph(
+                            String.format("%-20s %10.2f %10.2f",
+                                    itemQuantity + " " + item[0],
+                                    itemPrice,
+                                    itemTotal
+                            ),
+                            normalFont
+                    );
+                    document.add(itemLine);
+                } catch (NumberFormatException e) {
+                    // Skip invalid items
+                    System.err.println("Invalid item in PDF generation: " + e.getMessage());
+                }
             }
 
-            // Add total
-            document.add(table);
-            document.add(new Paragraph("\n"));
-            document.add(new Paragraph(String.format("Total: $%.2f", total), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
+            document.add(new Paragraph("-".repeat(48) + "\n", normalFont));
+
+            // Total
+            document.add(new Paragraph(String.format("Total Amount: %33.2f", total), boldFont));
+            document.add(new Paragraph(String.format("Tax (3%%): %37.2f", tax), boldFont));
+            document.add(new Paragraph(String.format("Grand Total: %32.2f", grandTotal), boldFont));
+            document.add(new Paragraph("-".repeat(48) + "\n", normalFont));
+
+            // Footer
+            Paragraph footer = new Paragraph(
+                    "Thank you for shopping with us!\nPlease come again\n*** End of Bill ***",
+                    normalFont
+            );
+            footer.setAlignment(Element.ALIGN_CENTER);
+            document.add(footer);
 
             document.close();
-            Notification.showMessage(this, "Bill downloaded as PDF successfully!");
+            Notification.showMessage(null,"PDF saved as Receipt.pdf");
         } catch (Exception e) {
-            Notification.showErrorMessage(this, "Failed to download PDF: " + e.getMessage());
+          Notification.showErrorMessage(null,"Error creating PDF: " + e.getMessage());
         }
     }
 
 
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                if (getModel().isPressed()) {
-                    g2d.setColor(METRO_BLUE.darker());
-                } else if (getModel().isRollover()) {
-                    g2d.setColor(METRO_BLUE.brighter());
-                } else {
-                    g2d.setColor(METRO_BLUE);
-                }
-
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
-                g2d.dispose();
-                super.paintComponent(g);
-            }
-        };
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setPreferredSize(new Dimension(150, 40));
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return button;
-    }
 }

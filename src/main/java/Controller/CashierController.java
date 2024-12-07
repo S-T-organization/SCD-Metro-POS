@@ -31,7 +31,9 @@ public class CashierController {
     public Product getProductById(String productId) {
         return cashier.getProductById(productId);
     }
-
+    public String getBranchNameByCode(String branchCode) {
+        return cashier.getBranchNameByCode(branchCode);
+    }
 
     public String removeProduct(List<String> namesAndQuantity,String branchCode) {
         return cashier.removeProduct(namesAndQuantity,branchCode);

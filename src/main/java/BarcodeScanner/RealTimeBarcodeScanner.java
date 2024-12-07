@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class RealTimeBarcodeScanner {
+    private boolean running = true;
     static {
         System.loadLibrary("opencv_java4100"); // Load OpenCV native library
     }
@@ -44,7 +45,7 @@ public class RealTimeBarcodeScanner {
         System.out.println("Scanning started. Move a QR code in front of the camera...");
 
         try {
-            while (true) {
+            while (running) {
                 if (camera.read(frame)) {
                     String qrCode = detectQRCode(frame);
                     if (qrCode != null) {
@@ -63,7 +64,9 @@ public class RealTimeBarcodeScanner {
             camera.release();
         }
     }
-
+    public void stopServer() {
+        running = false; // Gracefully stop the server
+    }
     private String detectQRCode(Mat frame) {
         Mat gray = new Mat();
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);

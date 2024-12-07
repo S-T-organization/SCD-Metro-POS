@@ -296,4 +296,23 @@ public class Cashier
         }
         return 0;
     }
+    public String getBranchNameByCode(String branchCode) {
+        String branchName = null;
+        String query = "SELECT name FROM Branch WHERE branchCode = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, branchCode);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    branchName = rs.getString("name");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error fetching branch name for code '" + branchCode + "': " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return branchName;
+    }
 }

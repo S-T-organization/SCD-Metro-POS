@@ -17,7 +17,9 @@ public class BackendMain {
         CheckConnectionOfInternet check = new CheckConnectionOfInternet();
         check.monitorInternet();
         BranchManager manager = new BranchManager();
-        manager.addCashier("101","Saim","cym286@gmail.com","122200");
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
+        manager.addCashier("101","Saim","cym26@gmail.com","122200");
 //       manager.addDataEntryOperator("101","Talha","tato@gmail,com","100000");
 
 ////        // Testing SuperAdmin functionalities
@@ -28,8 +30,7 @@ public class BackendMain {
 ////
 ////        // Pause for user to turn off Wi-Fi
 //        System.out.println("\nPlease turn off your Wi-Fi and press Enter to continue testing offline mode...");
-//        Scanner scanner = new Scanner(System.in);
-//        scanner.nextLine();
+//
 ////        System.out.println(  superAdmin.createBranch("0", "Main Branch2", "City A", "Address A", "1234567890"));
 ////
 //         // System.out.println(superAdmin.addBranchManager("40","hiuh","@gmai.com","544031","545465","15164811"));
