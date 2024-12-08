@@ -3,11 +3,6 @@
 Welcome to the **Metro Billing System** GitHub repository! This project is a comprehensive Java-based application designed to manage billing, inventory, and administrative tasks for businesses. The system is built on the **MVC (Model-View-Controller)** design pattern to ensure modularity, scalability, and ease of maintenance.
 
 ---
-## **Folder Structure**
-
-We have meticulously followed the MVC architecture, separating the application into distinct components:
-
-├── java │ ├── backend │ │ ├── BranchManager.java │ │ ├── Cashier.java │ │ ├── DataEntryOperator.java │ │ ├── DBConnection.java │ │ ├── PercentageCalculator.java │ │ ├── Product.java │ │ ├── ReportsManager.java │ │ ├── SuperAdmin.java │ ├── BarcodeScanner │ │ ├── RealTimeBarcodeScanner.java │ ├── Controller │ │ ├── BranchManagerController.java │ │ ├── CashierController.java │ │ ├── DataEntryOperatorController.java │ │ ├── ReportsController.java │ │ ├── SuperAdminController.java │ ├── frontend │ ├── BranchManagerPage.java │ ├── CashierPage.java │ ├── DataEntryOperatorPage.java │ ├── MainLoginPage.java │ ├── MetroBillingSplashScreen.java │ ├── ReportsPage.java │ ├── SuperAdminPage.java ├── resources │ ├── beep_sound.wav ├── test │ ├── java │ ├── backend │ ├── BranchManagerTest.java │ ├── CashierTest.java │ ├── DataEntryOperatorTest.java │ ├── DBConnectionTest.java │ ├── PercentageCalculatorTest.java │ ├── ProductTest.java │ ├── ReportsManagerTest.java │ ├── SuperAdminTest.java
 
 ## **Features**
 
