@@ -371,7 +371,104 @@ public class ReportsManager {
     }
 
 
-    public static class ReportData {
+    public double getTotalSales_test(String branchCode) {
+        double totalSales = 0.0;
+
+        String query = """
+                SELECT SUM(total_sales) AS totalSales
+                FROM Sales
+                WHERE branch_code = ?
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, branchCode);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    totalSales = rs.getDouble("totalSales");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return totalSales;
+    }
+
+    public Map<String, Double> getProductSalesData_test(String branchCode, String timePeriod) {
+        Map<String, Double> productSalesData = new HashMap<>();
+
+        String timeFilter = "";
+        if ("monthly".equalsIgnoreCase(timePeriod)) {
+            timeFilter = "AND sale_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
+        } else if ("yearly".equalsIgnoreCase(timePeriod)) {
+            timeFilter = "AND sale_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
+        }
+
+        String query = """
+                SELECT product_name, SUM(total_sales) AS totalSales
+                FROM Sales
+                WHERE branch_code = ?
+                %s
+                GROUP BY product_name
+                """.formatted(timeFilter);
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, branchCode);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String productName = rs.getString("product_name");
+                    double totalSales = rs.getDouble("totalSales");
+                    productSalesData.put(productName, totalSales);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return productSalesData;
+    }
+
+    public Map<String, Double> getBranchSalesData_test(String branchCode, String timePeriod) {
+        Map<String, Double> branchSalesData = new HashMap<>();
+
+        String timeFilter = "";
+        if ("monthly".equalsIgnoreCase(timePeriod)) {
+            timeFilter = "AND sale_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
+        } else if ("yearly".equalsIgnoreCase(timePeriod)) {
+            timeFilter = "AND sale_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
+        }
+
+        String query = """
+                SELECT b.name AS branchName, SUM(s.total_sales) AS totalSales
+                FROM Branch b
+                INNER JOIN Sales s ON b.branchCode = s.branch_code
+                WHERE b.branchCode = ?
+                %s
+                GROUP BY b.name
+                """.formatted(timeFilter);
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, branchCode);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String branchName = rs.getString("branchName");
+                    double totalSales = rs.getDouble("totalSales");
+                    branchSalesData.put(branchName, totalSales);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return branchSalesData;
+    }
+
+
+    public static class ReportData
+    {
         private final String branchCode;
         private final String productName;
         private final double totalSales;
@@ -393,5 +490,30 @@ public class ReportsManager {
         public double getTotalSales() {
             return totalSales;
         }
+
+        public double getTotalSales_test(String branchCode) {
+            double totalSales = 0.0;
+
+            String query = """
+                SELECT SUM(total_sales) AS totalSales
+                FROM Sales
+                WHERE branch_code = ?
+                """;
+
+            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                pstmt.setString(1, branchCode);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        totalSales = rs.getDouble("totalSales");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return totalSales;
+        }
+
     }
 }
