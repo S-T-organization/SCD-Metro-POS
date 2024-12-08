@@ -4,13 +4,14 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.Font;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 
 public class BillScreen extends JFrame {
     private static final Font RECEIPT_FONT = new Font("Courier New", Font.PLAIN, 12);
@@ -29,7 +30,7 @@ public class BillScreen extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 600);
         setLocationRelativeTo(parent);
-        setResizable(false);
+        setResizable(true); // Allow resizing
 
         // Main panel with white background
         JPanel mainPanel = new JPanel();
@@ -105,7 +106,7 @@ public class BillScreen extends JFrame {
         // Tax Amount
         JPanel taxPanel = new JPanel(new GridLayout(1, 2));
         taxPanel.setBackground(Color.WHITE);
-        addText(taxPanel, "Tax (03%):", true, SwingConstants.LEFT);
+        addText(taxPanel, "Tax (10%):", true, SwingConstants.LEFT);
         addText(taxPanel, String.format("Rs. %.2f", tax), true, SwingConstants.RIGHT);
         receiptPanel.add(taxPanel);
 
@@ -123,10 +124,8 @@ public class BillScreen extends JFrame {
         addCenteredText(receiptPanel, "Please come again", false);
         addCenteredText(receiptPanel, "*** End of Bill ***", false);
 
-        // Scroll pane for receipt
-        JScrollPane scrollPane = new JScrollPane(receiptPanel);
-        scrollPane.setBorder(null);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        // Add receiptPanel directly to mainPanel
+        mainPanel.add(receiptPanel, BorderLayout.CENTER);
 
         // Buttons panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -148,6 +147,16 @@ public class BillScreen extends JFrame {
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         setContentPane(mainPanel);
+
+        // Add a component listener to adjust the frame size
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int width = getWidth();
+                int height = receiptPanel.getPreferredSize().height + buttonsPanel.getPreferredSize().height + 100;
+                setSize(width, height);
+            }
+        });
     }
 
     private void addCenteredText(JPanel panel, String text, boolean bold) {
@@ -227,7 +236,7 @@ public class BillScreen extends JFrame {
 
             // Total
             document.add(new Paragraph(String.format("Total Amount: %33.2f", total), boldFont));
-            document.add(new Paragraph(String.format("Tax (3%%): %37.2f", tax), boldFont));
+            document.add(new Paragraph(String.format("Tax (10%%): %36.2f", tax), boldFont));
             document.add(new Paragraph(String.format("Grand Total: %32.2f", grandTotal), boldFont));
             document.add(new Paragraph("-".repeat(48) + "\n", normalFont));
 
@@ -240,11 +249,11 @@ public class BillScreen extends JFrame {
             document.add(footer);
 
             document.close();
-            Notification.showMessage(null,"PDF saved as Receipt.pdf");
+            Notification.showMessage(null, "PDF saved as Receipt.pdf");
         } catch (Exception e) {
-          Notification.showErrorMessage(null,"Error creating PDF: " + e.getMessage());
+            Notification.showErrorMessage(null, "Error creating PDF: " + e.getMessage());
         }
     }
 
-
 }
+
