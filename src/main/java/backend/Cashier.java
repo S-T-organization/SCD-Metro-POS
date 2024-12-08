@@ -108,16 +108,16 @@ public class Cashier
                 '}';
     }
 
-    public Product getProductById(String productId) {
+    public Product getProductById(String productId,String BranchCode) {
         if (!CheckConnectionOfInternet.isInternetAvailable()) {
             System.out.println("Internet unavailable. Cannot fetch product.");
             return null; // Return null or handle offline operations here if needed
         }
 
-        String query = "SELECT * FROM Products WHERE productId = ?";
+        String query = "SELECT * FROM Products WHERE productId = ? AND branchCode = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, productId);
-
+            pstmt.setString(2, BranchCode);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     Product product = new Product(

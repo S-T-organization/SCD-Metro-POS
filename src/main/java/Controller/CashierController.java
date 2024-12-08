@@ -28,8 +28,8 @@ public class CashierController {
         return cashier.getBranchCodeByName(branchName);
     }
 
-    public Product getProductById(String productId) {
-        return cashier.getProductById(productId);
+    public Product getProductById(String productId,String BranchCode) {
+        return cashier.getProductById(productId,BranchCode);
     }
     public String getBranchNameByCode(String branchCode) {
         return cashier.getBranchNameByCode(branchCode);

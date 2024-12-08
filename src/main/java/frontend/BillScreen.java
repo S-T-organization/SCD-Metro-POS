@@ -105,7 +105,7 @@ public class BillScreen extends JFrame {
         // Tax Amount
         JPanel taxPanel = new JPanel(new GridLayout(1, 2));
         taxPanel.setBackground(Color.WHITE);
-        addText(taxPanel, "Tax (10%):", true, SwingConstants.LEFT);
+        addText(taxPanel, "Tax (03%):", true, SwingConstants.LEFT);
         addText(taxPanel, String.format("Rs. %.2f", tax), true, SwingConstants.RIGHT);
         receiptPanel.add(taxPanel);
 

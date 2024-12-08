@@ -191,7 +191,7 @@ public class CashierTest {
         assertNotNull(productId, "Product ID should not be null");
 
         // Fetch the product by ID
-        Product product = cashier.getProductById(productId);
+        Product product = cashier.getProductById(productId,branchCode);
 
         assertNotNull(product, "Product should not be null");
         assertEquals(productName, product.getProductName(), "Product name mismatch");

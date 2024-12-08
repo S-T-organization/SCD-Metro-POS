@@ -323,7 +323,7 @@
             confirmButton.addActionListener(e -> {
                 String productId = productIdField.getText();
                 if (!productId.isEmpty()) {
-                    Product product = controller.getProductById(productId);
+                    Product product = controller.getProductById(productId,branchCode);
                     if (product != null) {
                         Vector<Object> row = new Vector<>();
                         row.add(product.getProductName());
@@ -334,7 +334,7 @@
                         updateTotal();
                         Notification.showMessage(this, "Product added successfully!");
                     } else {
-                        Notification.showMessage(this, "Product not found!");
+                        Notification.showErrorMessage(this, "Product not found!");
                     }
                     dialog.dispose();
                 }
@@ -393,7 +393,7 @@
         }
 
         private void addProductToTable(String productId) {
-            Product product = controller.getProductById(productId);
+            Product product = controller.getProductById(productId,branchCode);
             if (product != null) {
                 Vector<Object> row = new Vector<>();
                 row.add(product.getProductName());
@@ -402,7 +402,7 @@
                 tableModel.addRow(row);
                 updateTotal();
             } else {
-                JOptionPane.showMessageDialog(this, "Product not found!", "Error", JOptionPane.ERROR_MESSAGE);
+                Notification.showErrorMessage(this, "Product not found!");
             }
         }
         public void updateTotal() {
