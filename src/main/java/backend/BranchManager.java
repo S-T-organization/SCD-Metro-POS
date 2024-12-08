@@ -1,10 +1,10 @@
 package backend;
 
-
 import java.sql.*;
 import java.util.ArrayList;
 
-public class BranchManager {
+public class BranchManager
+{
     private Connection conn;
     private int empId;
     private String branchCode;
@@ -224,4 +224,5 @@ public class BranchManager {
                 ", salary='" + salary + '\'' +
                 '}';
     }
+
 }

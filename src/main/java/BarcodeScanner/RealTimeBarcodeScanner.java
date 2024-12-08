@@ -120,4 +120,6 @@ public class RealTimeBarcodeScanner {
             System.out.println("Error playing sound: " + e.getMessage());
         }
     }
+
+
 }

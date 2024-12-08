@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class SuperAdmin {
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "admin";
-    private Connection conn;
+    Connection conn;
 
     public SuperAdmin() {
         System.out.println("Super Admin Initialized");

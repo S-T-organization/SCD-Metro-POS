@@ -19,7 +19,7 @@ public class BackendMain {
         BranchManager manager = new BranchManager();
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
-        manager.addCashier("101","Saim","cym26@gmail.com","122200");
+       //manager.addCashier("101","Saim","cym26@gmail.com","122200");
 //       manager.addDataEntryOperator("101","Talha","tato@gmail,com","100000");
 
 ////        // Testing SuperAdmin functionalities
