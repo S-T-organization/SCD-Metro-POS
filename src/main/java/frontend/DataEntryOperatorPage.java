@@ -180,18 +180,22 @@ public class DataEntryOperatorPage extends JFrame {
         bottomPanel.setOpaque(false);
 
         JButton addToDatabaseButton = createStyledButton("Add Products");
-        addToDatabaseButton.setPreferredSize(new Dimension(200, 40));
+        addToDatabaseButton.setPreferredSize(new Dimension(150, 40));
         addToDatabaseButton.addActionListener(e -> addProductsToDatabase());
 
         JButton plusButton = createCircularButton("+");
         plusButton.setPreferredSize(new Dimension(40, 40));
         plusButton.addActionListener(e -> showAddProductDialog());
 
+        // Ensure both buttons are added to the bottomPanel
         bottomPanel.add(addToDatabaseButton);
         bottomPanel.add(plusButton);
 
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(bottomPanel, BorderLayout.SOUTH);
+
+        // Make sure the bottomPanel is visible
+        bottomPanel.setVisible(true);
 
         return panel;
     }
@@ -392,32 +396,34 @@ public class DataEntryOperatorPage extends JFrame {
         JButton button = new JButton(text) {
             @Override
             protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                if (getModel().isPressed()) {
-                    g2d.setColor(METRO_BLUE.darker());
-                } else if (getModel().isRollover()) {
-                    g2d.setColor(METRO_BLUE.brighter());
-                } else {
-                    g2d.setColor(METRO_BLUE);
-                }
+                // Fill background
+                g2.setColor(METRO_BLUE);
+                g2.fillOval(0, 0, getWidth() - 1, getHeight() - 1);
 
-                g2d.fillOval(0, 0, getWidth(), getHeight());
-                g2d.dispose();
+                // Draw text
+                g2.setColor(Color.WHITE);
+                g2.setFont(new Font("Arial", Font.BOLD, 20));
+                FontMetrics metrics = g2.getFontMetrics();
+                int x = (getWidth() - metrics.stringWidth(text)) / 2;
+                int y = ((getHeight() - metrics.getHeight()) / 2) + metrics.getAscent();
+                g2.drawString(text, x, y);
+
+                g2.dispose();
             }
         };
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Arial", Font.BOLD, 24));
+
+        button.setPreferredSize(new Dimension(40, 40));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setPreferredSize(new Dimension(40, 40));
+        button.setForeground(Color.WHITE);
+
         return button;
     }
-
     private void showAddVendorDialog() {
         JDialog dialog = new JDialog(this, "Add New Vendor", true);
         dialog.setLayout(new GridBagLayout());
@@ -525,5 +531,11 @@ public class DataEntryOperatorPage extends JFrame {
         return label;
     }
 
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            DataEntryOperatorPage frame = new DataEntryOperatorPage(null,"");
+            frame.setVisible(true);
+        });
+    }
 
 }
